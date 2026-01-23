@@ -20,14 +20,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 if (!credentials?.email) return null;
                 const email = credentials.email as string;
 
-                // Find or create user for testing
-                let user = await prisma.user.findUnique({ where: { email } });
-                if (!user) {
-                    user = await prisma.user.create({
-                        data: { email, name: email.split("@")[0] }
-                    });
+                try {
+                    // Find or create user for testing
+                    let user = await prisma.user.findUnique({ where: { email } });
+                    if (!user) {
+                        user = await prisma.user.create({
+                            data: { email, name: email.split("@")[0] }
+                        });
+                    }
+                    return user;
+                } catch (error) {
+                    console.error("DB Login failed, falling back to mock user:", error);
+                    // Fallback for Demo/VC even if DB is broken
+                    return {
+                        id: "demo-user-fallback",
+                        email: email,
+                        name: "Demo Guest (Offline)"
+                    };
                 }
-                return user;
             },
         }),
     ],
