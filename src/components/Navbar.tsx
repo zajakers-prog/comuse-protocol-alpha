@@ -29,7 +29,7 @@ export function Navbar() {
                                     {session.user?.name}
                                 </span>
                                 <button
-                                    onClick={() => signOut()}
+                                    onClick={() => signOut({ callbackUrl: "/" })}
                                     className="p-2 text-gray-500 hover:text-gray-900 transition-colors"
                                     title="Sign Out"
                                 >
@@ -39,7 +39,7 @@ export function Navbar() {
                         </>
                     ) : (
                         <button
-                            onClick={() => signIn()}
+                            onClick={() => signIn(undefined, { callbackUrl: window.location.origin })}
                             className="px-4 py-2 text-sm font-medium text-gray-900 hover:text-gray-600 transition-colors"
                         >
                             Sign In
