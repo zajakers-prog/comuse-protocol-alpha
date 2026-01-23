@@ -8,6 +8,7 @@ import { ContributionForm } from "./ContributionForm";
 import { CandidateList } from "./CandidateList";
 import { ReaderView } from "./ReaderView";
 import { EquityView } from "./EquityView";
+import { WeaverReport } from "./WeaverReport";
 
 interface ProjectInterfaceProps {
     project: any;
@@ -89,6 +90,13 @@ export function ProjectInterface({
                                 <span>The Muse Graph</span>
                                 <span className="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full">Beta</span>
                             </h2>
+                            {/* Weaver Report (If applies) */}
+                            {canon.length > 0 && (
+                                <WeaverReport
+                                    aiDataString={canon[0].aiData}
+                                    summary={canon[0].summary}
+                                />
+                            )}
                             <MuseGraph nodesData={nodes} />
                         </section>
 

@@ -12,8 +12,7 @@ export default function CreateProjectPage() {
     const [step, setStep] = useState(1);
     const [type, setType] = useState<"STORY" | "IDEA" | "RESEARCH">("STORY");
 
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
+    const [content, setContent] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -34,7 +33,7 @@ export default function CreateProjectPage() {
             const res = await fetch("/api/projects", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ title, description, type }),
+                body: JSON.stringify({ content, type }),
             });
 
             if (!res.ok) throw new Error("Failed to create project");
@@ -98,49 +97,37 @@ export default function CreateProjectPage() {
                         {type === "IDEA" ? "Ignite the Spark" : type === "RESEARCH" ? "Define the Topic" : "Start a New Story"}
                     </h1>
 
+                    <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg mb-6 text-sm text-blue-800">
+                        <strong>✨ No need for a formal title.</strong> Just write down your raw idea, story, or question. Weaver AI will organize it for you.
+                    </div>
+
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
-                            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                                Title
+                            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
+                                Your Spark
                             </label>
-                            <input
-                                id="title"
-                                type="text"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                required
-                                autoFocus
-                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-shadow"
-                                placeholder={type === "IDEA" ? "e.g., What if cats ruled the world?" : "The Great Adventure"}
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                                {type === "IDEA" ? "Context" : type === "RESEARCH" ? "Research Question" : "The Spark (Premise)"}
-                            </label>
-                            <p className="text-xs text-gray-500 mb-2">
-                                {type === "IDEA"
-                                    ? "Give enough detail for others to understand the core concept."
-                                    : "Set the scene, introduce the world, or provide the opening paragraph."}
-                            </p>
                             <textarea
-                                id="description"
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
+                                id="content"
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
                                 required
-                                rows={8}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-shadow font-serif"
-                                placeholder="It was a dark and stormy night..."
+                                rows={12}
+                                autoFocus
+                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-shadow font-serif text-lg leading-relaxed"
+                                placeholder={type === "IDEA" ? "e.g., What if silence was a currency?" : "It started with a simple letter..."}
                             />
                         </div>
 
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full bg-black text-white py-3 rounded-md font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full bg-black text-white py-3 rounded-md font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
-                            {isSubmitting ? "Creating..." : "Launch Project"}
+                            {isSubmitting ? (
+                                <>
+                                    <span>Weaver AI Analyzing...</span>
+                                </>
+                            ) : "Launch Project"}
                         </button>
                     </form>
                 </div>
