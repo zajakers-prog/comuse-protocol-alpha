@@ -3,6 +3,8 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { ai } from "@/lib/ai";
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request) {
     const session = await auth();
 

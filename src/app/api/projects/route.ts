@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { weaverAI } from "@/lib/services/weaver-ai";
 import { sheetsLogger } from "@/lib/services/sheets-logger";
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request) {
     const session = await auth();
 
