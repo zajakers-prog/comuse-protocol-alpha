@@ -66,8 +66,11 @@ export async function GET() {
                                 authorId: author.id,
                                 summary: p.description,
                                 aiScore: 8.5, // Fake high score for demo
-                                genre: p.genre,
-                                keyStrategy: p.keyStrategy,
+                                aiData: JSON.stringify({
+                                    genre: p.genre,
+                                    keyStrategy: p.keyStrategy,
+                                    scoutOpinion: "Highly prominent market potential detected."
+                                }),
                                 status: "APPROVED"
                             }
                         }
