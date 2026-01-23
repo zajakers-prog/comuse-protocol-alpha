@@ -21,6 +21,12 @@ export default async function ProjectPage({ params }: PageProps) {
         },
     });
 
+    // Ensure project AND author exist (Seed script might have failed linking?)
+    if (!project || !project.author) {
+        console.error("Project or Author not found:", id);
+        notFound();
+    }
+
     if (!project) notFound();
 
     // Fetch all nodes
