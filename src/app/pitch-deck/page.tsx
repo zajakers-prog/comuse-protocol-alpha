@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowRight, ArrowLeft, Terminal, GitBranch, ShieldCheck, Users, TrendingUp, Zap } from "lucide-react";
+import { ArrowRight, ArrowLeft, Terminal, GitBranch, ShieldCheck, Users, TrendingUp, Zap, User } from "lucide-react";
 import { format } from "date-fns";
 
 export const dynamic = 'force-dynamic';
