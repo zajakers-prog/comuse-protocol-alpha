@@ -64,7 +64,6 @@ export async function GET() {
                             create: {
                                 content: p.content,
                                 authorId: author.id,
-                                title: "Root Node",
                                 summary: p.description,
                                 aiScore: 8.5, // Fake high score for demo
                                 genre: p.genre,
