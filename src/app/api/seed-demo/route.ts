@@ -69,9 +69,7 @@ export async function GET() {
                                 aiData: JSON.stringify({
                                     genre: p.genre,
                                     keyStrategy: p.keyStrategy,
-                                    scoutOpinion: "Highly prominent market potential detected."
-                                }),
-                                status: "APPROVED"
+                                })
                             }
                         }
                     }
