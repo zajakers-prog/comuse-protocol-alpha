@@ -17,8 +17,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 email: { label: "Email", type: "email", placeholder: "test@example.com" },
             },
             async authorize(credentials) {
-                if (!credentials?.email) return null;
-                const email = credentials.email as string;
+                // Allow empty input for easier demo access
+                const email = (credentials?.email as string) || "demo@comuse.app";
 
                 try {
                     // Find or create user for testing
