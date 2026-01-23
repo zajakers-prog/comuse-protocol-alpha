@@ -63,10 +63,10 @@ export default async function ProjectPage({ params }: PageProps) {
     return (
         <div className="container mx-auto px-4 py-8 max-w-5xl">
             <ProjectInterface
-                project={project}
-                nodes={nodes}
-                canon={canon}
-                candidates={candidates}
+                project={JSON.parse(JSON.stringify(project))}
+                nodes={JSON.parse(JSON.stringify(nodes))}
+                canon={JSON.parse(JSON.stringify(canon))}
+                candidates={JSON.parse(JSON.stringify(candidates))}
                 userId={userId}
                 lastCanonId={lastCanonId}
             />
