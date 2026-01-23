@@ -23,7 +23,9 @@ async function main() {
         seedText: seed,
         totalIpIndex: analysis.totalIpIndex,
         scoutOpinion: analysis.scoutOpinion,
-        status: analysis.status
+        status: analysis.status,
+        genre: analysis.genre || "N/A",
+        keyStrategy: analysis.keyStrategy || "N/A"
     };
 
     console.log("Logging to Sheets...");
