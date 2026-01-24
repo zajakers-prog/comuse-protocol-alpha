@@ -52,7 +52,8 @@ export default async function ProjectPage({ params }: PageProps) {
         (n) => !n.isCanon && n.parentId === lastCanonId
     ).map(n => ({
         ...n,
-        hasVoted: n.votes.length > 0
+        // Safely check votes (it might be undefined if userId is null)
+        hasVoted: (n.votes || []).length > 0
     }));
 
     // Sort candidates by votes
