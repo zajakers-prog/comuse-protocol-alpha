@@ -17,7 +17,13 @@ export function WeaverReport({ aiDataString, summary }: WeaverReportProps) {
         return null;
     }
 
-    const { scores, totalIpIndex, scoutOpinion, builderInvitation, status } = analysis;
+    const {
+        scores = { novelty: 0, osmuPotential: 0, collaborativeMagnetism: 0, marketDemand: 0 },
+        totalIpIndex = 0,
+        scoutOpinion = "No analysis available.",
+        builderInvitation = "Contribute to this story.",
+        status = "PENDING"
+    } = analysis || {};
 
     return (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
