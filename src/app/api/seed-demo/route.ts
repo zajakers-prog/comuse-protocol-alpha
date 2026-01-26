@@ -18,7 +18,10 @@ export async function GET(req: Request) {
         });
 
         // 2. Clear OLD Data (Reset for clean slate)
-        // Order matters: Nodes first (FK constraints), then Projects
+        // Order matters for Foreign Key constraints:
+        // Vote -> Contribution -> Node -> Project
+        await prisma.vote.deleteMany({});
+        await prisma.contribution.deleteMany({});
         await prisma.node.deleteMany({});
         await prisma.project.deleteMany({});
 
