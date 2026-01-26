@@ -49,7 +49,7 @@ export function ContributionForm({ projectId, parentId, type }: ContributionForm
                 onClick={() => setIsOpen(true)}
                 className="mt-4 px-4 py-2 bg-gray-100 text-gray-900 rounded-full hover:bg-gray-200 transition-colors text-sm font-medium"
             >
-                + Write {type === "B" ? "Next Chapter" : "Ending"}
+                + Extend / Branch
             </button>
         );
     }
@@ -57,7 +57,7 @@ export function ContributionForm({ projectId, parentId, type }: ContributionForm
     return (
         <form onSubmit={handleSubmit} className="mt-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
             <h3 className="text-sm font-bold text-gray-900 mb-2">
-                Write {type === "B" ? "Chapter" : "Ending"}
+                Extend or Branch Story
             </h3>
             <textarea
                 value={content}

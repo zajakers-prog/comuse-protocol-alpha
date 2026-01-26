@@ -22,7 +22,7 @@ export function Navbar() {
                                 className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition-colors text-sm font-medium"
                             >
                                 <PenTool size={16} />
-                                Start a Story
+                                Start a Seed
                             </Link>
                             <div className="flex items-center gap-4 ml-4">
                                 <span className="text-sm text-gray-600 hidden sm:block">

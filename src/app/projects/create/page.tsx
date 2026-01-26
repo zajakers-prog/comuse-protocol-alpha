@@ -94,17 +94,17 @@ export default function CreateProjectPage() {
                     </button>
 
                     <h1 className="text-3xl font-serif font-bold text-gray-900 mb-8">
-                        {type === "IDEA" ? "Ignite the Spark" : type === "RESEARCH" ? "Define the Topic" : "Start a New Story"}
+                        {type === "IDEA" ? "Ignite the Spark" : type === "RESEARCH" ? "Define the Topic" : "Plant a Seed"}
                     </h1>
 
                     <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg mb-6 text-sm text-blue-800">
-                        <strong>✨ No need for a formal title.</strong> Just write down your raw idea, story, or question. Weaver AI will organize it for you.
+                        <strong>✨ No need for a formal title.</strong> Just write down your raw idea, story draft, or research question. Weaver AI will organize it.
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
                             <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
-                                Your Spark
+                                Your Seed Content (Idea or Draft)
                             </label>
                             <textarea
                                 id="content"
