@@ -7,7 +7,7 @@ export async function GET() {
     try {
         const demoUserEmail = "demo@comuse.app";
 
-        // 1. Ensure Demo Author Exists
+        // 1. Upsert Demo User
         const author = await prisma.user.upsert({
             where: { email: demoUserEmail },
             update: {},
@@ -17,75 +17,72 @@ export async function GET() {
             }
         });
 
-        // 2. Define Demo Projects
-        const projects = [
-            {
-                title: "Chronicles of the Glass City",
-                description: "A cyberpunk noir set in a city made entirely of transparent smart-glass, where privacy is the ultimate currency.",
-                type: "NOVEL",
-                content: "The rain didn't wash the city clean; it just made the glass slicker. From my office on the 404th floor, I could see them all—millions of lives played out in transparent cages...",
-                genre: "Sci-Fi / Noir",
-                keyStrategy: "Atmospheric World Building"
-            },
-            {
-                title: "Quantum Consciousness Protocol",
-                description: "Collaborative research paper exploring the intersection of quantum mechanics and human cognition. Seeking peer review on Chapter 3.",
-                type: "RESEARCH",
-                content: "# Abstract\n\nWe propose that human consciousness arises from microtubule quantum vibrations. This project aims to map the 'Orch-OR' theory against recent neurological findings...",
-                genre: "Academic / Science",
-                keyStrategy: "Hypothesis Testing"
-            },
-            {
-                title: "Neon Heartbeat (Synthwave Ballad)",
-                description: "A track needing lyrics and bridge composition. Focusing on retro-future aesthetics.",
-                type: "SONGWRITING",
-                content: "[Intro]\n(Am - F - C - G)\n\n[Verse 1]\nDriving down the highway of light\nChasing the ghost of the night\nYour voice is static on the radio\nWhere you went, I'll never know...\n\n[Chorus]\n(Need lyrics here - something about 'digital love')",
-                genre: "Music / Lyrics",
-                keyStrategy: "Hook Development"
-            }
-        ];
+        // 2. Clear OLD Data (Reset for clean slate)
+        await prisma.node.deleteMany({});
+        await prisma.project.deleteMany({});
 
-        // 3. Insert Projects
         const results = [];
-        for (const p of projects) {
-            // Check if exists to avoid dupes
-            const existing = await prisma.project.findFirst({
-                where: { title: p.title, authorId: author.id }
-            });
 
-            if (!existing) {
-                const project = await prisma.project.create({
-                    data: {
-                        title: p.title,
-                        description: p.description,
-                        type: p.type,
+        // 3. Insert specific cases
+
+        // Case A: Memory Laundromat
+        const novel = await prisma.project.create({
+            data: {
+                title: "Memory Laundromat (기억 세탁소)",
+                description: "A selective memory-erasing shop opens in Gangnam.",
+                type: "STORY",
+                authorId: author.id,
+                nodes: {
+                    create: {
+                        content: "Seed A: Genesis - A mysterious shop in Gangnam offers to erase painful memories. But the owner, 'Mr. K', warns: 'For every memory erased, you lose a piece of your future.'",
+                        type: "TEXT",
                         authorId: author.id,
-                        nodes: {
-                            create: {
-                                content: p.content,
-                                type: "TEXT",
-                                authorId: author.id,
-                                summary: p.description,
-                                aiScore: 8.5, // Fake high score for demo
-                                aiData: JSON.stringify({
-                                    genre: p.genre,
-                                    keyStrategy: p.keyStrategy,
-                                })
-                            }
-                        }
+                        summary: "Hypothesis: Selective memory erasure service.",
+                        aiScore: 98,
+                        aiData: JSON.stringify({
+                            scores: { novelty: 10, osmuPotential: 9, collaborativeMagnetism: 10, marketDemand: 10 },
+                            totalIpIndex: 98,
+                            scoutOpinion: "High-concept K-Drama potential. Global streaming appeal.",
+                            builderInvitation: "Branch into Thriller or Romance.",
+                            status: "APPROVED"
+                        }),
+                        isCanon: true
                     }
-                });
-                results.push(`Created: ${p.title}`);
-            } else {
-                results.push(`Skipped (Exists): ${p.title}`);
+                }
             }
-        }
-
-        return NextResponse.json({
-            success: true,
-            message: "Demo data seeded successfully",
-            details: results
         });
+        results.push(novel.title);
+
+        // Case B: Plastic Degradation
+        const research = await prisma.project.create({
+            data: {
+                title: "Cold Microbial Plastic Degradation",
+                description: "Hypothesis: Specific microbes in glaciers might degrade polyethylene.",
+                type: "RESEARCH",
+                authorId: author.id,
+                nodes: {
+                    create: {
+                        content: "Seed A: Hypothesis - While drilling via the Antarctica core, we found 'Cryo-Bacillus' consuming plastic waste at -20 degrees. This could revolutionize industrial recycling.",
+                        type: "TEXT",
+                        authorId: author.id,
+                        summary: "Discovery of plastic-eating cold microbes.",
+                        aiScore: 97,
+                        aiData: JSON.stringify({
+                            scores: { novelty: 10, osmuPotential: 8, collaborativeMagnetism: 9, marketDemand: 10 },
+                            totalIpIndex: 97,
+                            scoutOpinion: "Game-changer for Green Tech. Needs bio-med validation.",
+                            builderInvitation: "Propose extraction methods.",
+                            status: "APPROVED"
+                        }),
+                        isCanon: true
+                    }
+                }
+            }
+        });
+        results.push(research.title);
+
+        // Redirect to home page
+        return NextResponse.redirect(new URL('/', 303));
 
     } catch (error) {
         console.error("Seeding failed:", error);
