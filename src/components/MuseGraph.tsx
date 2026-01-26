@@ -10,14 +10,15 @@ interface MuseGraphProps {
     nodesData: any[]; // TODO: Define strict type
 }
 
-const nodeWidth = 200;
-const nodeHeight = 150; // Increased for visualizer style
+const nodeWidth = 240;
+const nodeHeight = 200; // Increased significantly for Hover Cards and spacing
 
 const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
     const dagreGraph = new dagre.graphlib.Graph();
     dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-    dagreGraph.setGraph({ rankdir: 'TB', nodesep: 50, ranksep: 80 });
+    // Increased spacing to prevent hover overlap
+    dagreGraph.setGraph({ rankdir: 'TB', nodesep: 100, ranksep: 120 });
 
     nodes.forEach((node) => {
         dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
@@ -56,7 +57,8 @@ export function MuseGraph({ nodesData }: MuseGraphProps) {
             const isRoot = !node.parentId;
 
             // Shorten label for display
-            let label = node.summary || node.content.substring(0, 20);
+            let label = node.content.substring(0, 30);
+            if (node.title) label = node.title; // If explicit title exists
 
             // Fetch Author Name (Safe Check)
             const authorName = node.author ? node.author.name : "Anonymous";
@@ -71,7 +73,7 @@ export function MuseGraph({ nodesData }: MuseGraphProps) {
                     isRoot: isRoot,
                     authorName: authorName,
                     aiScore: node.aiScore,
-                    summary: node.summary
+                    summary: node.summary || node.content.substring(0, 50) + "..."
                 },
             };
         });
@@ -102,12 +104,16 @@ export function MuseGraph({ nodesData }: MuseGraphProps) {
                 onEdgesChange={onEdgesChange}
                 nodeTypes={nodeTypes}
                 fitView
-                minZoom={0.5}
-                maxZoom={2}
+                minZoom={0.2}
+                maxZoom={4}
+                panOnScroll={true}
+                selectionOnDrag={true}
+                panOnDrag={true}
+                zoomOnScroll={true}
+                zoomOnPinch={true}
             >
-                <Background color="#cbd5e1" gap={20} size={1} />
-                <Controls showInteractive={false} />
-                {/* <MiniMap /> Removed for cleaner look */}
+                <Background color="#cbd5e1" gap={24} size={1} />
+                <Controls showInteractive={true} />
             </ReactFlow>
         </div>
     );
