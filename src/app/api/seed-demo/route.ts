@@ -24,27 +24,27 @@ export async function GET(req: Request) {
 
         const results = [];
 
-        // 3. Insert specific cases
+        // 3. Insert specific cases from User Screenshot
 
-        // Case A: Memory Laundromat
+        // Case A: Chronicles of the Glass City (Novel)
         const novel = await prisma.project.create({
             data: {
-                title: "Memory Laundromat (기억 세탁소)",
-                description: "A selective memory-erasing shop opens in Gangnam.",
+                title: "Chronicles of the Glass City",
+                description: "A cyberpunk noir set in a city made entirely of transparent smart-glass, where privacy is the ultimate currency.",
                 type: "STORY",
                 authorId: author.id,
                 nodes: {
                     create: {
-                        content: "Seed A: Genesis - A mysterious shop in Gangnam offers to erase painful memories. But the owner, 'Mr. K', warns: 'For every memory erased, you lose a piece of your future.'",
+                        content: "Seed A: Genesis - Welcome to Veridia, the Glass City. Here, walls don't hide secrets; they display them. I am a 'Smudger', one of the few who can buy you an hour of true darkness.",
                         type: "TEXT",
                         authorId: author.id,
-                        summary: "Hypothesis: Selective memory erasure service.",
-                        aiScore: 98,
+                        summary: "Cyberpunk Noir in a transparent city.",
+                        aiScore: 94,
                         aiData: JSON.stringify({
-                            scores: { novelty: 10, osmuPotential: 9, collaborativeMagnetism: 10, marketDemand: 10 },
-                            totalIpIndex: 98,
-                            scoutOpinion: "High-concept K-Drama potential. Global streaming appeal.",
-                            builderInvitation: "Branch into Thriller or Romance.",
+                            scores: { novelty: 10, osmuPotential: 9, collaborativeMagnetism: 10, marketDemand: 9 },
+                            totalIpIndex: 94,
+                            scoutOpinion: "Visually stunning concept. High Netflix adaptation potential.",
+                            builderInvitation: "Explore the crime syndicates or the technology.",
                             status: "APPROVED"
                         }),
                         isCanon: true
@@ -54,25 +54,25 @@ export async function GET(req: Request) {
         });
         results.push(novel.title);
 
-        // Case B: Plastic Degradation
+        // Case B: Quantum Consciousness Protocol (Research)
         const research = await prisma.project.create({
             data: {
-                title: "Cold Microbial Plastic Degradation",
-                description: "Hypothesis: Specific microbes in glaciers might degrade polyethylene.",
+                title: "Quantum Consciousness Protocol",
+                description: "Collaborative research paper exploring the intersection of quantum mechanics and human cognition.",
                 type: "RESEARCH",
                 authorId: author.id,
                 nodes: {
                     create: {
-                        content: "Seed A: Hypothesis - While drilling via the Antarctica core, we found 'Cryo-Bacillus' consuming plastic waste at -20 degrees. This could revolutionize industrial recycling.",
+                        content: "Seed A: Hypothesis - Reducing Orch-OR theory to practice. Can we detect quantum vibrations in microtubules using standard MRI variations?",
                         type: "TEXT",
                         authorId: author.id,
-                        summary: "Discovery of plastic-eating cold microbes.",
-                        aiScore: 97,
+                        summary: "Testing quantum mechanics in the human brain.",
+                        aiScore: 98,
                         aiData: JSON.stringify({
-                            scores: { novelty: 10, osmuPotential: 8, collaborativeMagnetism: 9, marketDemand: 10 },
-                            totalIpIndex: 97,
-                            scoutOpinion: "Game-changer for Green Tech. Needs bio-med validation.",
-                            builderInvitation: "Propose extraction methods.",
+                            scores: { novelty: 10, osmuPotential: 8, collaborativeMagnetism: 10, marketDemand: 10 },
+                            totalIpIndex: 98,
+                            scoutOpinion: "Paradigm synthesis. Needs physicist validation.",
+                            builderInvitation: "Propose experimental setup.",
                             status: "APPROVED"
                         }),
                         isCanon: true

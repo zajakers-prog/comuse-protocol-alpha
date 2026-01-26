@@ -15,37 +15,38 @@ interface NodeData {
 }
 
 const CASES: Record<string, NodeData[]> = {
-    "Memory Laundromat": [
-        { id: "A", parent: null, label: "Seed A: Genesis", contributor: "@Jason_Founder", score: 98, equity: 40, description: "Selective memory-erasing shop opens in Gangnam.", type: "GENESIS" },
-        { id: "B", parent: "A", label: "Branch 1: Melodrama", contributor: "@Alice_Writer", score: 88, equity: 15, description: "Builds a romance story around a forgotten lover.", type: "BRANCH" },
-        { id: "C", parent: "B", label: "Twist: Future Self", contributor: "@Bob_Builder", score: 92, equity: 15, description: "The customer is actually the owner from the future.", type: "BRANCH" },
-        { id: "D", parent: "A", label: "Branch 2: Thriller", contributor: "@David_Noir", score: 85, equity: 10, description: "The shop is a front for a crime syndicate.", type: "BRANCH" },
-        { id: "E", parent: "C", label: "Ending: Sad", contributor: "@Eve_Poet", score: 96, equity: 10, description: "He erases himself to save her.", type: "ENDING" },
-        { id: "F", parent: "C", label: "Ending: Open", contributor: "@Frank_Indie", score: 84, equity: 5, description: "They choose to remember the pain.", type: "ENDING" },
-        { id: "G", parent: "D", label: "Subplot: Detective", contributor: "@Grace_Cop", score: 79, equity: 5, description: "Detective Kang investigates the missing memories.", type: "BRANCH" },
+    "Chronicles of the Glass City": [
+        { id: "A", parent: null, label: "Seed A: Genesis", contributor: "@Jason_Founder", score: 94, equity: 40, description: "A cyberpunk noir set in a city made of transparent smart-glass.", type: "GENESIS" },
+        { id: "B", parent: "A", label: "Branch 1: The Smudgers", contributor: "@Alice_Noir", score: 89, equity: 15, description: "Underground rebels who hack the glass to create 'Blackout Zones'.", type: "BRANCH" },
+        { id: "C", parent: "B", label: "Twist: The Glass is Alive", contributor: "@Bob_SciFi", score: 95, equity: 15, description: "The city isn't material; it's a living silicon organism.", type: "BRANCH" },
+        { id: "D", parent: "A", label: "Branch 2: Corporate Eye", contributor: "@David_Elite", score: 82, equity: 10, description: "A detective story from the perspective of the surveillance AI.", type: "BRANCH" },
+        { id: "E", parent: "C", label: "Ending: Shatter", contributor: "@Eve_Punk", score: 98, equity: 10, description: "They trigger a resonance frequency. The city shatters.", type: "ENDING" },
+        { id: "F", parent: "C", label: "Ending: Symbiosis", contributor: "@Frank_Bio", score: 88, equity: 5, description: "Humans become transparent too, merging with the city.", type: "ENDING" },
+        { id: "G", parent: "D", label: "Subplot: Reflection", contributor: "@Grace_Cop", score: 80, equity: 5, description: "The AI falls in love with a reflection that doesn't exist.", type: "BRANCH" },
     ],
-    "Plastic Degradation": [
-        { id: "A", parent: null, label: "Seed A: Hypothesis", contributor: "@Dr_Lee", score: 97, equity: 50, description: "Specific microbes in glaciers might degrade polyethylene.", type: "GENESIS" },
-        { id: "B", parent: "A", label: "Branch 1: Bio-Med", contributor: "@Sarah_Lab", score: 91, equity: 20, description: "Proposes medical-grade protein extraction.", type: "BRANCH" },
-        { id: "C", parent: "B", label: "Tech: Nano-Capsules", contributor: "@TechBro", score: 93, equity: 15, description: "Encapsulating the enzyme for targeted delivery.", type: "BRANCH" },
-        { id: "D", parent: "A", label: "Branch 2: Industrial", contributor: "@EcoCorp", score: 89, equity: 10, description: "Industrial waste logistics using automated bioreactors.", type: "BRANCH" },
-        { id: "E", parent: "C", label: "Protocol: Testing", contributor: "@SafeGuard", score: 90, equity: 5, description: "Complete animal testing safety protocols.", type: "ENDING" },
+    "Quantum Consciousness Protocol": [
+        { id: "A", parent: null, label: "Seed A: Hypothesis", contributor: "@Jason_Founder", score: 98, equity: 45, description: "Quantum mechanics in microtubules = Human Consciousness.", type: "GENESIS" },
+        { id: "B", parent: "A", label: "Branch 1: Bio-Physics", contributor: "@Dr_Sarah", score: 92, equity: 20, description: "MRI variant to detect quantum coherence in neurons.", type: "BRANCH" },
+        { id: "C", parent: "B", label: "Proof: Time Dilation", contributor: "@Tech_Tom", score: 96, equity: 15, description: "Subjects in deep coherence experience time slower.", type: "BRANCH" },
+        { id: "D", parent: "A", label: "Branch 2: AI Simulation", contributor: "@Cyber_Corp", score: 85, equity: 10, description: "Building a silicon brain with quantum gates to replicate", type: "BRANCH" },
+        { id: "E", parent: "C", label: "Ending: Transcendence", contributor: "@Monk_AI", score: 99, equity: 5, description: "Consiousness uploaded to the quantum field without death.", type: "ENDING" },
+        { id: "F", parent: "D", label: "Error: Ghost in Machine", contributor: "@Hacker_X", score: 88, equity: 5, description: "The simulation starts dreaming.", type: "ENDING" },
     ]
 };
-
-// ... imports
 
 interface MultiverseVisualizerProps {
     initialCase?: string;
     hideSelector?: boolean;
 }
 
-export function MultiverseVisualizer({ initialCase = "Memory Laundromat", hideSelector = false }: MultiverseVisualizerProps) {
-    const [selectedCase, setSelectedCase] = useState<string>(initialCase);
+export function MultiverseVisualizer({ initialCase = "Chronicles of the Glass City", hideSelector = false }: MultiverseVisualizerProps) {
+    // Safety check: if the passed initialCase doesn't exist, default to the first one
+    const safeInitialCase = CASES[initialCase] ? initialCase : Object.keys(CASES)[0];
+
+    const [selectedCase, setSelectedCase] = useState<string>(safeInitialCase);
     const [hoveredNode, setHoveredNode] = useState<string | null>(null);
 
-    // Fallback to initialCase if selectedCase key doesn't exist (safety)
-    const nodes = CASES[selectedCase] || CASES[initialCase] || CASES["Memory Laundromat"];
+    const nodes = CASES[selectedCase] || CASES[safeInitialCase];
 
     // Helper to extract clean name from handle (e.g. @Jason_Founder -> Jason)
     const getName = (handle: string) => {

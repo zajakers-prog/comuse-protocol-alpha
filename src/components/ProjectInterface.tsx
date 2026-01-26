@@ -101,14 +101,14 @@ export function ProjectInterface({
                             <MuseGraph nodesData={nodes} />
 
                             {/* DEMO: Inject Multiverse Visualizer for specific case studies */}
-                            {project.title.includes("Memory Laundromat") && (
+                            {project.title.includes("Chronicles of the Glass City") && (
                                 <div className="mt-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                                    <MultiverseVisualizer initialCase="Memory Laundromat" hideSelector />
+                                    <MultiverseVisualizer initialCase="Chronicles of the Glass City" hideSelector />
                                 </div>
                             )}
-                            {project.title.includes("Plastic Degradation") && (
+                            {project.title.includes("Quantum Consciousness Protocol") && (
                                 <div className="mt-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                                    <MultiverseVisualizer initialCase="Plastic Degradation" hideSelector />
+                                    <MultiverseVisualizer initialCase="Quantum Consciousness Protocol" hideSelector />
                                 </div>
                             )}
                         </section>
