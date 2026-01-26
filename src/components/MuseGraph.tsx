@@ -4,19 +4,20 @@ import { useCallback, useMemo } from 'react';
 import { ReactFlow, Background, Controls, MiniMap, useNodesState, useEdgesState, Node, Edge, Position } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import dagre from 'dagre';
+import { MuseNode } from './MuseNode';
 
 interface MuseGraphProps {
     nodesData: any[]; // TODO: Define strict type
 }
 
-const nodeWidth = 172;
-const nodeHeight = 80;
+const nodeWidth = 200;
+const nodeHeight = 150; // Increased for visualizer style
 
 const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
     const dagreGraph = new dagre.graphlib.Graph();
     dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-    dagreGraph.setGraph({ rankdir: 'TB' });
+    dagreGraph.setGraph({ rankdir: 'TB', nodesep: 50, ranksep: 80 });
 
     nodes.forEach((node) => {
         dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
@@ -44,39 +45,33 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
     return { nodes: layoutedNodes, edges };
 };
 
+const nodeTypes = {
+    museNode: MuseNode,
+};
+
 export function MuseGraph({ nodesData }: MuseGraphProps) {
     const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
         const nodes: Node[] = nodesData.map((node) => {
             const isCanon = node.isCanon;
             const isRoot = !node.parentId;
 
-            const label = node.content.substring(0, 20) + (node.content.length > 20 ? "..." : "");
+            // Shorten label for display
+            let label = node.summary || node.content.substring(0, 20);
 
-            // Visual Style for Nodes
-            let bg = isCanon ? '#111' : '#fff';
-            let color = isCanon ? '#fff' : '#666';
-            let border = isCanon ? '2px solid #000' : '2px dashed #ccc';
-
-            if (isRoot) {
-                bg = '#2563eb'; // Blue for Root
-                color = '#fff';
-                border = 'none';
-            }
+            // Fetch Author Name (Safe Check)
+            const authorName = node.author ? node.author.name : "Anonymous";
 
             return {
                 id: node.id,
+                type: 'museNode', // Use Custom Node
                 position: { x: 0, y: 0 }, // Calculated by dagre
-                data: { label: label },
-                style: {
-                    background: bg,
-                    color: color,
-                    border: border,
-                    padding: '10px',
-                    borderRadius: '8px',
-                    width: 180, // Visual width
-                    fontSize: '12px',
-                    boxShadow: isCanon ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none',
-                    fontWeight: isCanon ? 'bold' : 'normal',
+                data: {
+                    label: label,
+                    isCanon: isCanon,
+                    isRoot: isRoot,
+                    authorName: authorName,
+                    aiScore: node.aiScore,
+                    summary: node.summary
                 },
             };
         });
@@ -89,7 +84,7 @@ export function MuseGraph({ nodesData }: MuseGraphProps) {
                 target: n.id,
                 type: 'smoothstep',
                 animated: true,
-                style: { stroke: '#000' }
+                style: { stroke: '#94a3b8', strokeWidth: 2, strokeDasharray: '5,5' } // Visualizer style edge
             }));
 
         return getLayoutedElements(nodes, edges);
@@ -99,17 +94,20 @@ export function MuseGraph({ nodesData }: MuseGraphProps) {
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
     return (
-        <div style={{ width: '100%', height: '500px', border: '1px solid #eee', borderRadius: '12px', overflow: 'hidden' }}>
+        <div style={{ width: '100%', height: '600px', background: '#f8fafc', borderRadius: '24px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
+                nodeTypes={nodeTypes}
                 fitView
+                minZoom={0.5}
+                maxZoom={2}
             >
-                <Background color="#f0f0f0" gap={16} />
-                <Controls />
-                <MiniMap />
+                <Background color="#cbd5e1" gap={20} size={1} />
+                <Controls showInteractive={false} />
+                {/* <MiniMap /> Removed for cleaner look */}
             </ReactFlow>
         </div>
     );

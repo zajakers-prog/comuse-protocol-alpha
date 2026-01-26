@@ -99,18 +99,16 @@ export function ProjectInterface({
                                 />
                             )}
 
-                            {/* GRAPH AREA: Swap between Real Graph and Demo Visualizer */}
-                            {project.title.includes("Chronicles of the Glass City") ? (
-                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                                    <MultiverseVisualizer initialCase="Chronicles of the Glass City" hideSelector />
-                                </div>
-                            ) : project.title.includes("Quantum Consciousness Protocol") ? (
-                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                                    <MultiverseVisualizer initialCase="Quantum Consciousness Protocol" hideSelector />
-                                </div>
-                            ) : (
-                                <MuseGraph nodesData={nodes} />
+                            {/* Weaver Report (If applies) */}
+                            {canon.length > 0 && (
+                                <WeaverReport
+                                    aiDataString={canon[0].aiData}
+                                    summary={canon[0].summary}
+                                />
                             )}
+
+                            {/* UNIFIED GRAPH: Interactive + Rich Metadata */}
+                            <MuseGraph nodesData={nodes} />
                         </section>
 
                         <StoryViewer project={project} nodes={canon} />
