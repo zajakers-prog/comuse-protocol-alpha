@@ -98,18 +98,18 @@ export function ProjectInterface({
                                     summary={canon[0].summary}
                                 />
                             )}
-                            <MuseGraph nodesData={nodes} />
 
-                            {/* DEMO: Inject Multiverse Visualizer for specific case studies */}
-                            {project.title.includes("Chronicles of the Glass City") && (
-                                <div className="mt-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                            {/* GRAPH AREA: Swap between Real Graph and Demo Visualizer */}
+                            {project.title.includes("Chronicles of the Glass City") ? (
+                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                                     <MultiverseVisualizer initialCase="Chronicles of the Glass City" hideSelector />
                                 </div>
-                            )}
-                            {project.title.includes("Quantum Consciousness Protocol") && (
-                                <div className="mt-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                            ) : project.title.includes("Quantum Consciousness Protocol") ? (
+                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                                     <MultiverseVisualizer initialCase="Quantum Consciousness Protocol" hideSelector />
                                 </div>
+                            ) : (
+                                <MuseGraph nodesData={nodes} />
                             )}
                         </section>
 
