@@ -33,51 +33,44 @@ const CASES: Record<string, NodeData[]> = {
     ]
 };
 
-export function MultiverseVisualizer() {
-    const [selectedCase, setSelectedCase] = useState<string>("Memory Laundromat");
+// ... imports
+
+interface MultiverseVisualizerProps {
+    initialCase?: string;
+    hideSelector?: boolean;
+}
+
+export function MultiverseVisualizer({ initialCase = "Memory Laundromat", hideSelector = false }: MultiverseVisualizerProps) {
+    const [selectedCase, setSelectedCase] = useState<string>(initialCase);
     const [hoveredNode, setHoveredNode] = useState<string | null>(null);
 
-    const nodes = CASES[selectedCase];
+    // Fallback to initialCase if selectedCase key doesn't exist (safety)
+    const nodes = CASES[selectedCase] || CASES[initialCase] || CASES["Memory Laundromat"];
 
-    // Helper to extract clean name from handle (e.g. @Jason_Founder -> Jason)
-    const getName = (handle: string) => {
-        return handle.replace("@", "").split("_")[0];
-    };
-
-    // Helper to calculate position (Simple layout)
-    const getPos = (id: string) => {
-        const positions: Record<string, { x: number, y: number }> = {
-            "A": { x: 50, y: 15 },
-            "B": { x: 30, y: 45 },
-            "C": { x: 30, y: 75 },
-            "D": { x: 70, y: 45 },
-            "E": { x: 20, y: 105 }, // Further down for tree feel
-            "F": { x: 40, y: 105 },
-            "G": { x: 70, y: 75 },
-        };
-        return positions[id] || { x: 50, y: 50 };
-    };
+    // ... helpers getName, getPos
 
     return (
-        <div className="w-full max-w-5xl mx-auto my-16 p-8 bg-white rounded-3xl border border-gray-200 shadow-xl overflow-hidden">
+        <div className="w-full max-w-5xl mx-auto my-8 p-8 bg-white rounded-3xl border border-gray-200 shadow-xl overflow-hidden">
             <h2 className="text-3xl font-serif font-bold text-center mb-2">The Multiverse Visualizer</h2>
             <p className="text-center text-gray-500 mb-8">Branching Equity Map (Hover for Details)</p>
 
-            {/* Case Selector */}
-            <div className="flex justify-center gap-4 mb-12">
-                {Object.keys(CASES).map((caseName) => (
-                    <button
-                        key={caseName}
-                        onClick={() => setSelectedCase(caseName)}
-                        className={`px-6 py-2 rounded-full font-medium transition-colors ${selectedCase === caseName
-                            ? "bg-black text-white"
-                            : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                            }`}
-                    >
-                        {caseName}
-                    </button>
-                ))}
-            </div>
+            {/* Case Selector - Only show if not hidden */}
+            {!hideSelector && (
+                <div className="flex justify-center gap-4 mb-12">
+                    {Object.keys(CASES).map((caseName) => (
+                        <button
+                            key={caseName}
+                            onClick={() => setSelectedCase(caseName)}
+                            className={`px-6 py-2 rounded-full font-medium transition-colors ${selectedCase === caseName
+                                ? "bg-black text-white"
+                                : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                                }`}
+                        >
+                            {caseName}
+                        </button>
+                    ))}
+                </div>
+            )}
 
             {/* Graph Area */}
             <div className="relative w-full h-[600px] bg-slate-50 rounded-xl border border-dashed border-gray-300 overflow-hidden">

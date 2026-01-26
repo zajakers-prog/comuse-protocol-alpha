@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatDistanceToNow } from "date-fns";
-import { MultiverseVisualizer } from "@/components/MultiverseVisualizer";
+
 
 export const dynamic = 'force-dynamic';
 
@@ -83,12 +83,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Multiverse Visualizer (Educational Demo) */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <MultiverseVisualizer />
-        </div>
-      </section>
+
 
       {/* Trending Section */}
       <section id="trending" className="py-20 container mx-auto px-4 max-w-5xl">

@@ -9,6 +9,7 @@ import { CandidateList } from "./CandidateList";
 import { ReaderView } from "./ReaderView";
 import { EquityView } from "./EquityView";
 import { WeaverReport } from "./WeaverReport";
+import { MultiverseVisualizer } from "./MultiverseVisualizer";
 
 interface ProjectInterfaceProps {
     project: any;
@@ -98,6 +99,18 @@ export function ProjectInterface({
                                 />
                             )}
                             <MuseGraph nodesData={nodes} />
+
+                            {/* DEMO: Inject Multiverse Visualizer for specific case studies */}
+                            {project.title.includes("Memory Laundromat") && (
+                                <div className="mt-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                                    <MultiverseVisualizer initialCase="Memory Laundromat" hideSelector />
+                                </div>
+                            )}
+                            {project.title.includes("Plastic Degradation") && (
+                                <div className="mt-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                                    <MultiverseVisualizer initialCase="Plastic Degradation" hideSelector />
+                                </div>
+                            )}
                         </section>
 
                         <StoryViewer project={project} nodes={canon} />
