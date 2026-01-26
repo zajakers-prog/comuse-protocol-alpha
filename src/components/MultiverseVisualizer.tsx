@@ -16,20 +16,20 @@ interface NodeData {
 
 const CASES: Record<string, NodeData[]> = {
     "Memory Laundromat": [
-        { id: "A", parent: null, label: "Seed A: Genesis", contributor: "@Jason", score: 92, equity: 40, description: "Selective memory-erasing shop opens in Gangnam.", type: "GENESIS" },
-        { id: "B", parent: "A", label: "Branch 1: Melodrama", contributor: "@Alice", score: 85, equity: 15, description: "Builds a romance story around a forgotten lover.", type: "BRANCH" },
-        { id: "C", parent: "B", label: "Twist: Future Self", contributor: "@Bob", score: 88, equity: 15, description: "The customer is actually the owner from the future.", type: "BRANCH" },
-        { id: "D", parent: "A", label: "Branch 2: Thriller", contributor: "@David", score: 79, equity: 10, description: "The shop is a front for a crime syndicate.", type: "BRANCH" },
-        { id: "E", parent: "C", label: "Ending: Sad", contributor: "@Eve", score: 95, equity: 10, description: "He erases himself to save her.", type: "ENDING" },
-        { id: "F", parent: "C", label: "Ending: Open", contributor: "@Frank", score: 82, equity: 5, description: "They choose to remember the pain.", type: "ENDING" },
-        { id: "G", parent: "D", label: "Subplot: Detective", contributor: "@Grace", score: 75, equity: 5, description: "A detective uses the shop to solve cold cases.", type: "BRANCH" },
+        { id: "A", parent: null, label: "Seed A: Genesis", contributor: "@Jason_Founder", score: 98, equity: 40, description: "Selective memory-erasing shop opens in Gangnam.", type: "GENESIS" },
+        { id: "B", parent: "A", label: "Branch 1: Melodrama", contributor: "@Alice_Writer", score: 88, equity: 15, description: "Builds a romance story around a forgotten lover.", type: "BRANCH" },
+        { id: "C", parent: "B", label: "Twist: Future Self", contributor: "@Bob_Builder", score: 92, equity: 15, description: "The customer is actually the owner from the future.", type: "BRANCH" },
+        { id: "D", parent: "A", label: "Branch 2: Thriller", contributor: "@David_Noir", score: 85, equity: 10, description: "The shop is a front for a crime syndicate.", type: "BRANCH" },
+        { id: "E", parent: "C", label: "Ending: Sad", contributor: "@Eve_Poet", score: 96, equity: 10, description: "He erases himself to save her.", type: "ENDING" },
+        { id: "F", parent: "C", label: "Ending: Open", contributor: "@Frank_Indie", score: 84, equity: 5, description: "They choose to remember the pain.", type: "ENDING" },
+        { id: "G", parent: "D", label: "Subplot: Detective", contributor: "@Grace_Cop", score: 79, equity: 5, description: "Detective Kang investigates the missing memories.", type: "BRANCH" },
     ],
     "Plastic Degradation": [
-        { id: "A", parent: null, label: "Seed A: Hypothesis", contributor: "@Dr_Lee", score: 94, equity: 50, description: "Microbes in glaciers might degrade polyethylene.", type: "GENESIS" },
-        { id: "B", parent: "A", label: "Branch 1: Bio-Med", contributor: "@Sarah_Lab", score: 89, equity: 20, description: "Proposes medical-grade protein extraction.", type: "BRANCH" },
-        { id: "C", parent: "B", label: "Tech: Nano-Capsules", contributor: "@TechBro", score: 91, equity: 15, description: "Encapsulating the enzyme for targeted delivery.", type: "BRANCH" },
-        { id: "D", parent: "A", label: "Branch 2: Industrial", contributor: "@EcoCorp", score: 85, equity: 10, description: "Industrial waste logistics using bioreactors.", type: "BRANCH" },
-        { id: "E", parent: "C", label: "Protocol: Testing", contributor: "@SafeGuard", score: 88, equity: 5, description: "Complete animal testing safety protocols.", type: "ENDING" },
+        { id: "A", parent: null, label: "Seed A: Hypothesis", contributor: "@Dr_Lee", score: 97, equity: 50, description: "Specific microbes in glaciers might degrade polyethylene.", type: "GENESIS" },
+        { id: "B", parent: "A", label: "Branch 1: Bio-Med", contributor: "@Sarah_Lab", score: 91, equity: 20, description: "Proposes medical-grade protein extraction.", type: "BRANCH" },
+        { id: "C", parent: "B", label: "Tech: Nano-Capsules", contributor: "@TechBro", score: 93, equity: 15, description: "Encapsulating the enzyme for targeted delivery.", type: "BRANCH" },
+        { id: "D", parent: "A", label: "Branch 2: Industrial", contributor: "@EcoCorp", score: 89, equity: 10, description: "Industrial waste logistics using automated bioreactors.", type: "BRANCH" },
+        { id: "E", parent: "C", label: "Protocol: Testing", contributor: "@SafeGuard", score: 90, equity: 5, description: "Complete animal testing safety protocols.", type: "ENDING" },
     ]
 };
 
@@ -66,8 +66,8 @@ export function MultiverseVisualizer() {
                         key={caseName}
                         onClick={() => setSelectedCase(caseName)}
                         className={`px-6 py-2 rounded-full font-medium transition-colors ${selectedCase === caseName
-                                ? "bg-black text-white"
-                                : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                            ? "bg-black text-white"
+                            : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                             }`}
                     >
                         {caseName}
