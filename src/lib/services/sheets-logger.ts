@@ -5,6 +5,7 @@ import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { JWT } from 'google-auth-library';
 
 interface LogEntry {
+    role: string;
     timestamp: string;
     creatorId: string;
     seedText: string;
@@ -68,6 +69,7 @@ export class SheetsLogger {
         if (!this.isProd) {
             try {
                 const row = [
+                    entry.role,
                     entry.timestamp,
                     entry.creatorId,
                     `"${entry.seedText.replace(/"/g, '""')}"`, // Escape quotes
@@ -92,6 +94,7 @@ export class SheetsLogger {
             try {
                 const sheet = this.googleSheet.sheetsByIndex[0]; // Write to first tab
                 await sheet.addRow({
+                    "Role": entry.role,
                     Timestamp: entry.timestamp,
                     "Creator ID": entry.creatorId,
                     "Seed Text": entry.seedText,

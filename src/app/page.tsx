@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatDistanceToNow } from "date-fns";
+import { MultiverseVisualizer } from "@/components/MultiverseVisualizer";
 
 export const dynamic = 'force-dynamic';
 
@@ -79,6 +80,13 @@ export default async function Home() {
               <p className="text-gray-600 text-sm">Accepted contributions grant you ownership shares in the final IP.</p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Multiverse Visualizer (Educational Demo) */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <MultiverseVisualizer />
         </div>
       </section>
 

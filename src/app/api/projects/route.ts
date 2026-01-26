@@ -62,6 +62,7 @@ export async function POST(req: Request) {
 
         // 3. Log to Sheets (CSV) - Fire and Forget
         sheetsLogger.logContribution({
+            role: "A",
             timestamp: new Date().toISOString(),
             creatorId: session.user.email!,
             seedText: content,
