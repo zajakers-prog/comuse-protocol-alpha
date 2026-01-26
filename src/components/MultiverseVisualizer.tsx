@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { GitBranch, Info, Play, User } from "lucide-react";
+import { User } from "lucide-react";
 
 interface NodeData {
     id: string;
@@ -39,25 +39,29 @@ export function MultiverseVisualizer() {
 
     const nodes = CASES[selectedCase];
 
+    // Helper to extract clean name from handle (e.g. @Jason_Founder -> Jason)
+    const getName = (handle: string) => {
+        return handle.replace("@", "").split("_")[0];
+    };
+
     // Helper to calculate position (Simple layout)
     const getPos = (id: string) => {
         const positions: Record<string, { x: number, y: number }> = {
-            "A": { x: 50, y: 10 },
-            "B": { x: 30, y: 40 },
-            "C": { x: 30, y: 70 },
-            "D": { x: 70, y: 40 },
-            "E": { x: 20, y: 100 },
-            "F": { x: 40, y: 100 },
-            "G": { x: 70, y: 70 },
+            "A": { x: 50, y: 15 },
+            "B": { x: 30, y: 45 },
+            "C": { x: 30, y: 75 },
+            "D": { x: 70, y: 45 },
+            "E": { x: 20, y: 105 }, // Further down for tree feel
+            "F": { x: 40, y: 105 },
+            "G": { x: 70, y: 75 },
         };
-        // Reuse positions for Case 2 where IDs match roughly
         return positions[id] || { x: 50, y: 50 };
     };
 
     return (
         <div className="w-full max-w-5xl mx-auto my-16 p-8 bg-white rounded-3xl border border-gray-200 shadow-xl overflow-hidden">
             <h2 className="text-3xl font-serif font-bold text-center mb-2">The Multiverse Visualizer</h2>
-            <p className="text-center text-gray-500 mb-8">Hover to see Equity & Contributors</p>
+            <p className="text-center text-gray-500 mb-8">Branching Equity Map (Hover for Details)</p>
 
             {/* Case Selector */}
             <div className="flex justify-center gap-4 mb-12">
@@ -76,7 +80,7 @@ export function MultiverseVisualizer() {
             </div>
 
             {/* Graph Area */}
-            <div className="relative w-full h-[500px] bg-slate-50 rounded-xl border border-dashed border-gray-300">
+            <div className="relative w-full h-[600px] bg-slate-50 rounded-xl border border-dashed border-gray-300 overflow-hidden">
                 {/* Connections (SVG Lines) */}
                 <svg className="absolute inset-0 w-full h-full pointer-events-none">
                     {nodes.map(node => {
@@ -90,7 +94,7 @@ export function MultiverseVisualizer() {
                                 y1={`${start.y}%`}
                                 x2={`${end.x}%`}
                                 y2={`${end.y}%`}
-                                stroke="#CBD5E1"
+                                stroke="#94A3B8"
                                 strokeWidth="2"
                                 strokeDasharray="5,5"
                             />
@@ -102,6 +106,7 @@ export function MultiverseVisualizer() {
                 {nodes.map(node => {
                     const pos = getPos(node.id);
                     const isHovered = hoveredNode === node.id;
+                    const cleanName = getName(node.contributor);
 
                     return (
                         <div
@@ -111,34 +116,56 @@ export function MultiverseVisualizer() {
                             onMouseEnter={() => setHoveredNode(node.id)}
                             onMouseLeave={() => setHoveredNode(null)}
                         >
-                            <div className={`
-                                relative flex items-center justify-center w-16 h-16 rounded-full shadow-md border-2 
-                                ${node.type === "GENESIS" ? "bg-blue-600 border-blue-400 text-white" :
-                                    node.type === "ENDING" ? "bg-green-100 border-green-500 text-green-700" :
-                                        "bg-white border-gray-300 text-gray-700"}
-                                hover:scale-110 cursor-pointer transition-transform
-                            `}>
-                                <span className="font-bold font-mono text-lg">{node.id}</span>
-
-                                {isHovered && (
-                                    <div className="absolute top-full mt-4 w-64 p-4 bg-black text-white rounded-lg shadow-xl z-20 text-left animate-in fade-in slide-in-from-top-2">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <span className="font-bold text-blue-400">{node.label}</span>
-                                            <span className="bg-white/20 px-2 py-0.5 rounded text-xs">{node.score}/100</span>
-                                        </div>
-                                        <p className="text-sm text-gray-300 mb-3 leading-snug">
-                                            "{node.description}"
-                                        </p>
-                                        <div className="flex items-center justify-between border-t border-white/20 pt-2 text-xs font-mono text-gray-400">
-                                            <span className="flex items-center gap-1">
-                                                <User size={12} /> {node.contributor}
-                                            </span>
-                                            <span className="text-green-400 font-bold">
-                                                Equity: {node.equity}%
-                                            </span>
-                                        </div>
+                            <div className="flex flex-col items-center group">
+                                <div className={`
+                                    relative flex items-center justify-center w-20 h-20 rounded-full shadow-lg border-4 
+                                    ${node.type === "GENESIS" ? "bg-blue-600 border-blue-200 text-white" :
+                                        node.type === "ENDING" ? "bg-green-600 border-green-200 text-white" :
+                                            "bg-white border-gray-200 text-gray-800"}
+                                    group-hover:scale-110 cursor-pointer transition-transform
+                                `}>
+                                    <div className="text-center leading-tight">
+                                        <div className="text-[10px] opacity-70 uppercase tracking-widest mb-0.5">Role</div>
+                                        <div className="font-bold text-sm">{cleanName}</div>
+                                        {node.type === "GENESIS" && <div className="text-[9px] mt-0.5 font-mono bg-white/20 px-1 rounded">OWNER</div>}
                                     </div>
-                                )}
+
+                                    {/* Tooltip */}
+                                    {isHovered && (
+                                        <div className="absolute top-full mt-4 w-72 p-5 bg-black text-white rounded-xl shadow-2xl z-50 text-left animate-in fade-in slide-in-from-top-2">
+                                            <div className="flex justify-between items-start mb-3 border-b border-gray-700 pb-2">
+                                                <span className="font-bold text-blue-400 text-lg">{node.label}</span>
+                                                <div className="flex flex-col items-end">
+                                                    <span className="text-xs text-gray-400">Muse Score</span>
+                                                    <span className="font-mono font-bold text-yellow-400">{node.score}/100</span>
+                                                </div>
+                                            </div>
+
+                                            <p className="text-sm text-gray-300 mb-4 leading-relaxed italic">
+                                                "{node.description}"
+                                            </p>
+
+                                            <div className="flex items-center justify-between pt-2 bg-gray-900/50 p-2 rounded-lg">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold">
+                                                        {cleanName[0]}
+                                                    </div>
+                                                    <span className="text-xs font-medium text-gray-300">{node.contributor}</span>
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className="text-[10px] text-gray-500 uppercase">Equity Share</div>
+                                                    <span className="text-green-400 font-bold font-mono text-lg">
+                                                        {node.equity}%
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                                {/* Name Label below node (Static) */}
+                                <div className="mt-2 bg-white/90 backdrop-blur px-3 py-1 rounded-full shadow-sm border border-gray-100 text-xs font-bold text-gray-600">
+                                    {cleanName}
+                                </div>
                             </div>
                         </div>
                     );
