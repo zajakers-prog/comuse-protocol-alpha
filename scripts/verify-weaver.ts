@@ -18,6 +18,7 @@ async function main() {
     }
 
     const logEntry = {
+        role: "TEST",
         timestamp: new Date().toISOString(),
         creatorId: "test-user@example.com",
         seedText: seed,
