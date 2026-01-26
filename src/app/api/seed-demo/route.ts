@@ -3,11 +3,14 @@ import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: Request) {
     try {
         const demoUserEmail = "demo@comuse.app";
 
-        // 1. Upsert Demo User
+        // ... (existing code)
+
+        // Redirect to home page
+        return NextResponse.redirect(new URL('/', req.url), { status: 303 });
         const author = await prisma.user.upsert({
             where: { email: demoUserEmail },
             update: {},
@@ -82,7 +85,7 @@ export async function GET() {
         results.push(research.title);
 
         // Redirect to home page
-        return NextResponse.redirect(new URL('/', 303));
+        return NextResponse.redirect(new URL('/', req.url), { status: 303 });
 
     } catch (error) {
         console.error("Seeding failed:", error);
