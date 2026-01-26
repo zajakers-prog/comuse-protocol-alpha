@@ -1,135 +1,146 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function CreateProjectPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
-
-    // Step 1: Type Selection, Step 2: Details
     const [step, setStep] = useState(1);
-    const [type, setType] = useState<"STORY" | "IDEA" | "RESEARCH">("STORY");
-
+    const [selectedCategory, setSelectedCategory] = useState<"WRITING" | "CARTOON" | "MUSIC" | "RESEARCH" | null>(null);
     const [content, setContent] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    useEffect(() => {
-        if (status === "unauthenticated") {
-            router.push("/api/auth/signin");
-        }
-    }, [status, router]);
-
-    if (status === "loading" || status === "unauthenticated") {
-        return <div className="container mx-auto px-4 py-8">Loading...</div>;
+    // Redirect if unauthenticated
+    if (status === "unauthenticated") {
+        router.push("/api/auth/signin");
+        return null; // Or a loading spinner
     }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    if (status === "loading") {
+        return <div className="p-10 text-center">Loading...</div>;
+    }
+
+    const handleCreate = async () => {
+        if (!content || !selectedCategory) return;
         setIsSubmitting(true);
 
         try {
+            // Map the new categories to the DB types our backend expects (for MVP)
+            // WRITING/CARTOON -> STORY
+            // MUSIC -> SONGWRITING (if supported) or IDEA
+            // RESEARCH -> RESEARCH
+            let dbType = "IDEA";
+            if (selectedCategory === "WRITING" || selectedCategory === "CARTOON") dbType = "STORY";
+            if (selectedCategory === "RESEARCH") dbType = "RESEARCH";
+            if (selectedCategory === "MUSIC") dbType = "SONGWRITING"; // Assuming backend handles this or defaults
+
             const res = await fetch("/api/projects", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ content, type }),
+                body: JSON.stringify({
+                    type: dbType,
+                    content: content,
+                    title: `New ${selectedCategory} Seed`,
+                    genre: selectedCategory // Pass as genre meta
+                }),
             });
 
-            if (!res.ok) throw new Error("Failed to create project");
-
-            const project = await res.json();
-            router.push(`/projects/${project.id}`);
-            router.refresh();
-        } catch (error) {
-            console.error(error);
-            alert("Failed to create project");
+            if (res.ok) {
+                const project = await res.json();
+                router.push(`/projects/${project.id}`);
+            } else {
+                alert("Failed to create seed.");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Error creating seed.");
         } finally {
             setIsSubmitting(false);
         }
     };
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-2xl">
-            {step === 1 ? (
-                // Step 1: Type Selection
-                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="text-center">
-                        <h1 className="text-3xl font-serif font-bold text-gray-900 mb-2">What are you creating?</h1>
-                        <p className="text-gray-500">Choose the format that best fits your vision.</p>
-                    </div>
+        <div className="container mx-auto px-4 py-16 max-w-4xl">
+            {step === 1 && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <h1 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-6 text-center">
+                        Choose Your Medium
+                    </h1>
+                    <p className="text-xl text-gray-500 text-center mb-12 max-w-2xl mx-auto font-light">
+                        What kind of creative seed are you planting today?
+                    </p>
 
-                    <div className="grid gap-4">
+                    <div className="grid md:grid-cols-2 gap-6">
                         {[
-                            { id: "IDEA", label: "Spark (Idea)", desc: "A raw concept or prompt for others to build on." },
-                            { id: "STORY", label: "Story (Narrative)", desc: "A linear or branching narrative with chapters." },
-                            { id: "RESEARCH", label: "Joint Research", desc: "Collaborative exploration of a topic." },
-                        ].map((item) => (
+                            { id: "WRITING", label: "Writing", sub: "Novels, Screenplays, Lyrics", icon: "✍️", color: "hover:border-blue-500 hover:bg-blue-50" },
+                            { id: "CARTOON", label: "Cartoon / Webtoon", sub: "Storyboards, Character Specs", icon: "🎨", color: "hover:border-purple-500 hover:bg-purple-50" },
+                            { id: "MUSIC", label: "Music", sub: "Co-composition, Melody Lines", icon: "🎵", color: "hover:border-pink-500 hover:bg-pink-50" },
+                            { id: "RESEARCH", label: "Joint Research", sub: "Hypothesis, Academic Inquiry", icon: "🔬", color: "hover:border-green-500 hover:bg-green-50" },
+                        ].map((option) => (
                             <button
-                                key={item.id}
+                                key={option.id}
                                 onClick={() => {
-                                    setType(item.id as any);
+                                    setSelectedCategory(option.id as any);
                                     setStep(2);
                                 }}
-                                className="flex flex-col items-start p-6 bg-white border border-gray-200 rounded-xl hover:border-black hover:shadow-md transition-all text-left group"
+                                className={`group p-8 border border-gray-200 rounded-3xl transition-all text-left flex items-start gap-6 bg-white shadow-sm hover:shadow-xl ${option.color}`}
                             >
-                                <span className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                                    {item.label}
-                                </span>
-                                <span className="text-sm text-gray-500 mt-1">
-                                    {item.desc}
-                                </span>
+                                <div className="text-5xl p-4 bg-gray-50 rounded-2xl group-hover:scale-110 transition-transform">
+                                    {option.icon}
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-2xl text-gray-900 mb-2">{option.label}</h3>
+                                    <p className="text-base text-gray-500 group-hover:text-gray-700">{option.sub}</p>
+                                </div>
                             </button>
                         ))}
                     </div>
                 </div>
-            ) : (
-                // Step 2: Details Form
-                <div className="animate-in fade-in slide-in-from-right-8 duration-500">
+            )}
+
+            {step === 2 && (
+                <div className="animate-in fade-in slide-in-from-right-8 duration-500 max-w-3xl mx-auto">
                     <button
                         onClick={() => setStep(1)}
-                        className="text-sm text-gray-500 hover:text-black mb-6 flex items-center gap-1"
+                        className="text-sm font-medium text-gray-400 hover:text-black mb-8 flex items-center gap-2 transition-colors"
                     >
-                        ← Back to Type Selection
+                        ← Back to categories
                     </button>
 
-                    <h1 className="text-3xl font-serif font-bold text-gray-900 mb-8">
-                        {type === "IDEA" ? "Ignite the Spark" : type === "RESEARCH" ? "Define the Topic" : "Plant a Seed"}
+                    <h1 className="text-4xl font-serif font-bold text-gray-900 mb-3">
+                        Plant your <span className="text-blue-600">{selectedCategory?.toLowerCase()}</span> seed.
                     </h1>
+                    <p className="text-lg text-gray-500 mb-8 font-light">
+                        Describe your initial concept. It can be a rough draft, a character sketch, or a melody idea.
+                    </p>
 
-                    <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg mb-6 text-sm text-blue-800">
-                        <strong>✨ No need for a formal title.</strong> Just write down your raw idea, story draft, or research question. Weaver AI will organize it.
-                    </div>
-
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div>
-                            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
-                                Your Seed Content (Idea or Draft)
-                            </label>
-                            <textarea
-                                id="content"
-                                value={content}
-                                onChange={(e) => setContent(e.target.value)}
-                                required
-                                rows={12}
-                                autoFocus
-                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-shadow font-serif text-lg leading-relaxed"
-                                placeholder={type === "IDEA" ? "e.g., What if silence was a currency?" : "It started with a simple letter..."}
-                            />
+                    <div className="bg-white p-1 rounded-3xl border border-gray-200 shadow-xl focus-within:ring-4 focus-within:ring-blue-50 transition-all">
+                        <textarea
+                            className="w-full h-80 p-8 bg-white rounded-3xl border-none focus:ring-0 resize-none text-xl leading-relaxed placeholder:text-gray-300 font-serif"
+                            placeholder={
+                                selectedCategory === "MUSIC" ? "e.g. A lo-fi beat with a walking bassline in A minor... (Paste Soundcloud link or describe vibes)" :
+                                    selectedCategory === "CARTOON" ? "e.g. A protagonist who can see sound waves. Setting: Neo-Seoul, 2045..." :
+                                        "Start writing here..."
+                            }
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                            autoFocus
+                        />
+                        <div className="px-6 py-4 border-t border-gray-100 flex justify-between items-center bg-gray-50 rounded-b-3xl">
+                            <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                <span>🤖 Weaver AI Active</span>
+                            </div>
+                            <button
+                                disabled={isSubmitting || !content.trim()}
+                                onClick={handleCreate}
+                                className="px-10 py-4 bg-black text-white rounded-2xl font-bold text-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105 shadow-lg flex items-center gap-2"
+                            >
+                                {isSubmitting ? "Planting..." : "Launch Seed 🚀"}
+                            </button>
                         </div>
-
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="w-full bg-black text-white py-3 rounded-md font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <span>Weaver AI Analyzing...</span>
-                                </>
-                            ) : "Launch Project"}
-                        </button>
-                    </form>
+                    </div>
                 </div>
             )}
         </div>
