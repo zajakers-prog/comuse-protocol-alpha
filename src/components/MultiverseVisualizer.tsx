@@ -47,7 +47,24 @@ export function MultiverseVisualizer({ initialCase = "Memory Laundromat", hideSe
     // Fallback to initialCase if selectedCase key doesn't exist (safety)
     const nodes = CASES[selectedCase] || CASES[initialCase] || CASES["Memory Laundromat"];
 
-    // ... helpers getName, getPos
+    // Helper to extract clean name from handle (e.g. @Jason_Founder -> Jason)
+    const getName = (handle: string) => {
+        return handle.replace("@", "").split("_")[0];
+    };
+
+    // Helper to calculate position (Simple layout)
+    const getPos = (id: string) => {
+        const positions: Record<string, { x: number, y: number }> = {
+            "A": { x: 50, y: 15 },
+            "B": { x: 30, y: 45 },
+            "C": { x: 30, y: 75 },
+            "D": { x: 70, y: 45 },
+            "E": { x: 20, y: 105 }, // Further down for tree feel
+            "F": { x: 40, y: 105 },
+            "G": { x: 70, y: 75 },
+        };
+        return positions[id] || { x: 50, y: 50 };
+    };
 
     return (
         <div className="w-full max-w-5xl mx-auto my-8 p-8 bg-white rounded-3xl border border-gray-200 shadow-xl overflow-hidden">
