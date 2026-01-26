@@ -7,10 +7,7 @@ export async function GET(req: Request) {
     try {
         const demoUserEmail = "demo@comuse.app";
 
-        // ... (existing code)
-
-        // Redirect to home page
-        return NextResponse.redirect(new URL('/', req.url), { status: 303 });
+        // 1. Upsert Demo User
         const author = await prisma.user.upsert({
             where: { email: demoUserEmail },
             update: {},
@@ -21,6 +18,7 @@ export async function GET(req: Request) {
         });
 
         // 2. Clear OLD Data (Reset for clean slate)
+        // Order matters: Nodes first (FK constraints), then Projects
         await prisma.node.deleteMany({});
         await prisma.project.deleteMany({});
 
