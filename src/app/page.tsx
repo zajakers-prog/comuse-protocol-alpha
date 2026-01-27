@@ -16,13 +16,13 @@ export default async function Home() {
           equity: true
         },
       },
-      // Fetch the root node to get AI summary/score
+      // Fetch nodes to manually count unique contributors if needed
       nodes: {
-        where: { parentId: null },
-        take: 1,
         select: {
+          authorId: true,
           summary: true,
           aiScore: true,
+          parentId: true
         }
       }
     },
@@ -97,9 +97,13 @@ export default async function Home() {
 
         <div className="grid gap-8">
           {projects.map((project) => {
-            const rootNode = project.nodes[0];
+            const rootNode = project.nodes.find(n => !n.parentId) || project.nodes[0];
             const aiScore = rootNode?.aiScore || 0;
             const summary = rootNode?.summary || project.description;
+
+            // Robust Fallback: Calculate contributors from actual nodes if DB count is 0
+            const uniqueAuthors = new Set(project.nodes.map(n => n.authorId));
+            const contributorCount = Math.max(project._count.equity, uniqueAuthors.size);
 
             return (
               <article key={project.id} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group relative overflow-hidden">
@@ -139,7 +143,10 @@ export default async function Home() {
                       <span className="text-lg">🌿</span> {project._count.nodes} Nodes
                     </span>
                     <span className="flex items-center gap-2">
-                      <span className="text-lg">👥</span> {project._count.equity} Contributors
+                      <span className="text-lg">👥</span>
+                      <span className={contributorCount > 0 ? "font-bold text-blue-600" : ""}>
+                        {contributorCount} Contributors
+                      </span>
                     </span>
                   </div>
                   <Link
@@ -152,6 +159,9 @@ export default async function Home() {
               </article>
             );
           })}
+        </div>
+        <div className="text-center py-10 text-xs text-gray-300">
+          CoMuse Protocol v2.1 (Live)
         </div>
       </section>
     </div>
