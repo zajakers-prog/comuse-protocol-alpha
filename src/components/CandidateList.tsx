@@ -12,7 +12,8 @@ interface Candidate {
     author: { name: string | null };
     createdAt: Date;
     _count: { votes: number };
-    hasVoted: boolean; // We'll need to pass this from server or fetch it
+    hasVoted: boolean;
+    aiScore?: number | null; // Add AI Score
 }
 
 interface CandidateListProps {
@@ -52,36 +53,57 @@ export function CandidateList({ candidates, currentUserId }: CandidateListProps)
     if (candidates.length === 0) {
         return (
             <div className="text-center py-8 text-gray-500 italic">
-                No contributions yet. Be the first to write!
+                No active branches yet. Be the first to extend this story.
             </div>
         );
     }
 
     return (
         <div className="space-y-6 mt-8">
-            <h3 className="text-lg font-bold text-gray-900 border-b pb-2">
-                Community Contributions
+            <h3 className="text-lg font-bold text-gray-900 border-b pb-2 flex justify-between items-center">
+                <span>Branch Ledger</span>
+                <span className="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{candidates.length} Proposed</span>
             </h3>
             {candidates.map((candidate) => (
-                <div key={candidate.id} className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                    <div className="flex items-center justify-between mb-2 text-xs text-gray-500">
-                        <span className="font-medium text-gray-900">{candidate.author.name || "Anonymous"}</span>
-                        <time>{formatDistanceToNow(new Date(candidate.createdAt), { addSuffix: true })}</time>
+                <div key={candidate.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                    {/* Header: Author & Score */}
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-[10px] text-white font-bold">
+                                {candidate.author.name?.[0] || "?"}
+                            </div>
+                            <span className="font-medium text-sm text-gray-900">{candidate.author.name || "Anonymous"}</span>
+                        </div>
+
+                        {/* AI Score Badge */}
+                        {candidate.aiScore && (
+                            <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-bold border ${candidate.aiScore >= 90 ? "bg-amber-50 text-amber-700 border-amber-200" :
+                                    "bg-gray-50 text-gray-600 border-gray-200"
+                                }`}>
+                                <span>✦ IP Score: {candidate.aiScore}</span>
+                            </div>
+                        )}
                     </div>
-                    <div className="prose prose-sm max-w-none text-gray-800 font-serif mb-4 whitespace-pre-wrap">
+
+                    {/* Content */}
+                    <div className="prose prose-sm max-w-none text-gray-700 font-serif mb-4 whitespace-pre-wrap leading-relaxed">
                         {candidate.content}
                     </div>
-                    <div className="flex items-center gap-4">
+
+                    {/* Footer: Time & Votes */}
+                    <div className="flex items-center justify-between border-t pt-3 mt-3">
+                        <time className="text-xs text-gray-400">{formatDistanceToNow(new Date(candidate.createdAt), { addSuffix: true })}</time>
+
                         <button
                             onClick={() => handleVote(candidate.id)}
                             disabled={votingId === candidate.id}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-colors ${candidate.hasVoted
-                                ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${candidate.hasVoted
+                                ? "bg-blue-600 text-white shadow-blue-200 shadow-lg"
                                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                                 }`}
                         >
-                            <ThumbsUp size={14} className={candidate.hasVoted ? "fill-current" : ""} />
-                            <span>{candidate._count.votes}</span>
+                            <ThumbsUp size={12} className={candidate.hasVoted ? "fill-current" : ""} />
+                            <span>{candidate._count.votes} Votes</span>
                         </button>
                     </div>
                 </div>

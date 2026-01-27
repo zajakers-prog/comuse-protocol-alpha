@@ -81,7 +81,7 @@ export function ProjectInterface({
 
             {mode === "equity" ? (
                 <div className="animate-in fade-in duration-500">
-                    <EquityView canon={canon} projectAuthor={project.author} />
+                    <EquityView nodes={nodes} projectAuthor={project.author} />
                 </div>
             ) : (
                 <div className="grid md:grid-cols-3 gap-8 animate-in fade-in duration-500">
@@ -89,16 +89,8 @@ export function ProjectInterface({
                         <section>
                             <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                                 <span>The Muse Graph</span>
-                                <span className="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full">Beta</span>
+                                <span className="text-xs font-normal text-white bg-blue-600 px-2 py-1 rounded-full">Beta V2</span>
                             </h2>
-                            {/* Weaver Report (If applies) */}
-                            {canon.length > 0 && (
-                                <WeaverReport
-                                    aiDataString={canon[0].aiData}
-                                    summary={canon[0].summary}
-                                />
-                            )}
-
                             {/* Weaver Report (If applies) */}
                             {canon.length > 0 && (
                                 <WeaverReport

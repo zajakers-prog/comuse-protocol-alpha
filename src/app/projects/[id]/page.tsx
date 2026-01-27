@@ -46,18 +46,21 @@ export default async function ProjectPage({ params }: PageProps) {
     // Candidates are replies to the LAST canon item.
     const lastCanonId = canon.length > 0 ? canon[canon.length - 1].id : null;
 
-    // Candidates: isCanon false AND parentId matches lastCanonId
-    // Note: If lastCanonId is null, we look for nodes with parentId === null (Seed candidates)
-    const candidates = nodes.filter(
-        (n) => !n.isCanon && n.parentId === lastCanonId
-    ).map(n => ({
+    // Candidates: ALL non-canon nodes (Branches, Twists, Endings, etc.)
+    // We want to show the entire tree of contributions below the graph.
+    const candidates = nodes.filter((n) => !n.isCanon).map(n => ({
         ...n,
         // Safely check votes (it might be undefined if userId is null)
         hasVoted: (n.votes || []).length > 0
     }));
 
-    // Sort candidates by votes
-    candidates.sort((a, b) => b._count.votes - a._count.votes);
+    // Sort candidates by AI Score (Quality first) then Votes
+    candidates.sort((a, b) => {
+        const scoreA = a.aiScore || 0;
+        const scoreB = b.aiScore || 0;
+        if (scoreB !== scoreA) return scoreB - scoreA;
+        return b._count.votes - a._count.votes;
+    });
 
     const storyParts = canon.map(n => ({
         id: n.id,

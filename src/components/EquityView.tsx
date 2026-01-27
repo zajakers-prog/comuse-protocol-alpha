@@ -3,27 +3,27 @@
 import { PieChart, Users } from "lucide-react";
 
 interface EquityViewProps {
-    canon: {
+    nodes: {
         author: { name: string | null; email: string | null };
     }[];
     projectAuthor: { name: string | null; email: string | null };
 }
 
-export function EquityView({ canon, projectAuthor }: EquityViewProps) {
+export function EquityView({ nodes, projectAuthor }: EquityViewProps) {
     // Calculate equity
-    // Logic: Project Author gets 1 share (for the Spark), plus 1 share for each Canon node they wrote.
-    // Other authors get 1 share for each Canon node.
+    // Logic: Project Author gets 10 shares (Spark).
+    // Every accepted node (or currently ALL nodes for demo) grants 1 share.
 
     const shares: Record<string, number> = {};
     const names: Record<string, string> = {};
 
     // Initialize with Project Author (Spark)
     const authorKey = projectAuthor.email || "anonymous";
-    shares[authorKey] = 1;
+    shares[authorKey] = 10; // Founder Spark Value
     names[authorKey] = projectAuthor.name || "Anonymous";
 
-    // Add Canon contributions
-    canon.forEach(node => {
+    // Add contributions
+    nodes.forEach(node => {
         const key = node.author.email || "anonymous";
         shares[key] = (shares[key] || 0) + 1;
         names[key] = node.author.name || "Anonymous";
@@ -35,7 +35,7 @@ export function EquityView({ canon, projectAuthor }: EquityViewProps) {
         .map(([email, count]) => ({
             name: names[email],
             email,
-            count,
+            count, // This count is "shares" now, not just nodes count, but roughly aligns
             percentage: (count / totalShares) * 100
         }))
         .sort((a, b) => b.count - a.count);

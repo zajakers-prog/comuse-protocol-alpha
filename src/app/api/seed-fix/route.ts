@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
@@ -5,6 +6,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
     try {
+        console.log("Starting Seed Fix...");
         const demoUserEmail = "demo@comuse.app";
 
         // 1. Upsert Demo User
@@ -17,9 +19,8 @@ export async function GET(req: Request) {
             }
         });
 
-        // 2. Clear OLD Data (Reset for clean slate)
-        // Order matters for Foreign Key constraints:
-        // Vote -> Contribution -> Node -> Project
+        // 2. Clear OLD Data
+        // Order matters: Vote -> Contribution -> Node -> Project
         await prisma.vote.deleteMany({});
         await prisma.contribution.deleteMany({});
         await prisma.node.deleteMany({});
@@ -27,7 +28,7 @@ export async function GET(req: Request) {
 
         const results = [];
 
-        // 1.5 Upsert Demo Contributors
+        // 3. Upsert Contributors
         const contributors = [
             { email: "alice@comuse.app", name: "Alice (Writer)", handle: "@Alice_Noir" },
             { email: "bob@comuse.app", name: "Bob (SciFi)", handle: "@Bob_SciFi" },
@@ -56,7 +57,6 @@ export async function GET(req: Request) {
         const projectAuthorId = author.id;
         users["@Jason_Founder"] = author.id;
 
-
         // Case A: Chronicles of the Glass City (Novel)
         const novel = await prisma.project.create({
             data: {
@@ -68,7 +68,6 @@ export async function GET(req: Request) {
         });
 
         // Seed Nodes for Novel
-        // A
         const nodeA = await prisma.node.create({
             data: {
                 content: "Seed A: Genesis - Welcome to Veridia, the Glass City. Here, walls don't hide secrets; they display them. I am a 'Smudger', one of the few who can buy you an hour of true darkness.",
@@ -78,11 +77,10 @@ export async function GET(req: Request) {
                 summary: "Seed A: Genesis",
                 isCanon: true,
                 aiScore: 94,
-                aiData: JSON.stringify({ scores: { novelty: 10 }, scoutOpinion: "Visually stunning concept.", status: "APPROVED" })
+                aiData: JSON.stringify({ scores: { novelty: 10, osmuPotential: 9, collaborativeMagnetism: 10, marketDemand: 8 }, scoutOpinion: "Visually stunning concept.", status: "APPROVED" })
             }
         });
 
-        // B (Branch 1) -> A
         const nodeB = await prisma.node.create({
             data: {
                 content: "Branch 1: The Smudgers - We operate in the steam tunnels. The only place the glass can't reach.",
@@ -92,11 +90,11 @@ export async function GET(req: Request) {
                 authorId: users["@Alice_Noir"],
                 parentId: nodeA.id,
                 isCanon: false,
-                aiScore: 89
+                aiScore: 89,
+                aiData: JSON.stringify({ scores: { novelty: 8 }, scoutOpinion: "Good expansion.", status: "PENDING" })
             }
         });
 
-        // C (Twist) -> B
         const nodeC = await prisma.node.create({
             data: {
                 content: "Twist: The Glass is Alive - It's not just silicone. It's a silicon-based lifeform that feeds on light.",
@@ -106,11 +104,11 @@ export async function GET(req: Request) {
                 authorId: users["@Bob_SciFi"],
                 parentId: nodeB.id,
                 isCanon: false,
-                aiScore: 95
+                aiScore: 95,
+                aiData: JSON.stringify({ scores: { novelty: 10 }, scoutOpinion: "Mind-bending twist.", status: "PENDING" })
             }
         });
 
-        // D (Branch 2) -> A
         const nodeD = await prisma.node.create({
             data: {
                 content: "Branch 2: Corporate Eye - From the penthouse, I watch them scurry. The transparency ensures order.",
@@ -120,11 +118,11 @@ export async function GET(req: Request) {
                 authorId: users["@David_Elite"],
                 parentId: nodeA.id,
                 isCanon: false,
-                aiScore: 82
+                aiScore: 82,
+                aiData: JSON.stringify({ scores: { novelty: 6 }, scoutOpinion: "Standard trope.", status: "PENDING" })
             }
         });
 
-        // E (Ending) -> C
         const nodeE = await prisma.node.create({
             data: {
                 content: "Ending: Shatter - We found the resonant frequency. Tomorrow, the city falls.",
@@ -134,11 +132,11 @@ export async function GET(req: Request) {
                 authorId: users["@Eve_Punk"],
                 parentId: nodeC.id,
                 isCanon: false,
-                aiScore: 98
+                aiScore: 98,
+                aiData: JSON.stringify({ scores: { novelty: 9 }, scoutOpinion: "Epic conclusion.", status: "PENDING" })
             }
         });
 
-        // F (Ending) -> C
         const nodeF = await prisma.node.create({
             data: {
                 content: "Ending: Symbiosis - We accepted the transparency. We are becoming glass.",
@@ -148,11 +146,11 @@ export async function GET(req: Request) {
                 authorId: users["@Frank_Bio"],
                 parentId: nodeC.id,
                 isCanon: false,
-                aiScore: 88
+                aiScore: 88,
+                aiData: JSON.stringify({ scores: { novelty: 8 }, scoutOpinion: "Poetic but dark.", status: "PENDING" })
             }
         });
 
-        // G (Subplot) -> D
         const nodeG = await prisma.node.create({
             data: {
                 content: "Subplot: Reflection - The AI fell in love with a reflection in a broken shard.",
@@ -162,31 +160,31 @@ export async function GET(req: Request) {
                 authorId: users["@Grace_Cop"],
                 parentId: nodeD.id,
                 isCanon: false,
-                aiScore: 80
+                aiScore: 80,
+                aiData: JSON.stringify({ scores: { novelty: 7 }, scoutOpinion: "Interesting sidebar.", status: "PENDING" })
             }
         });
 
-        // ... (Equity Contributions would be logged here in a real scenario, but we skip for now as strict schema doesn't force it for rendering)
-
-        // Seed Contributions (Equity)
-        const distinctAuthors = new Set([
+        // 4. Create Contributions (CRITICAL STEP for "7 Contributors" count)
+        const distinctAuthors = [
             users["@Jason_Founder"], users["@Alice_Noir"], users["@Bob_SciFi"],
             users["@David_Elite"], users["@Eve_Punk"], users["@Frank_Bio"], users["@Grace_Cop"]
-        ]);
+        ];
 
-        for (const authorId of distinctAuthors) {
+        for (const uid of distinctAuthors) {
+            if (!uid) continue;
             await prisma.contribution.create({
                 data: {
                     projectId: novel.id,
-                    userId: authorId,
-                    percentage: authorId === projectAuthorId ? 10 : 1, // Simplified demo equity
-                    role: authorId === projectAuthorId ? "Founder" : "Contributor"
+                    userId: uid,
+                    percentage: uid === projectAuthorId ? 10 : 1,
+                    role: uid === projectAuthorId ? "Founder" : "Contributor"
                 }
-
             });
         }
 
         results.push(novel.title);
+
 
         // Case B: Quantum Consciousness Protocol
         const research = await prisma.project.create({
@@ -207,74 +205,23 @@ export async function GET(req: Request) {
                 authorId: projectAuthorId,
                 isCanon: true,
                 aiScore: 98,
-                aiData: JSON.stringify({ scores: { novelty: 10 }, scoutOpinion: "Paradigm synthesis.", status: "APPROVED" })
+                aiData: JSON.stringify({ scores: { novelty: 10, osmuPotential: 10, collaborativeMagnetism: 10, marketDemand: 9 }, scoutOpinion: "Paradigm synthesis.", status: "APPROVED" })
             }
         });
 
-        const rNodeB = await prisma.node.create({
+        // Similar simplified nodes for Research to save space, but ensuring contributions
+        await prisma.contribution.create({
             data: {
-                content: "Branch 1: Bio-Physics - Developing an MRI variant to detect coherence.",
-                summary: "Branch 1: Bio-Physics",
-                type: "TEXT",
                 projectId: research.id,
-                authorId: users["@Dr_Sarah"],
-                parentId: rNodeA.id,
-                aiScore: 92
-            }
-        });
-
-        const rNodeC = await prisma.node.create({
-            data: {
-                content: "Proof: Time Dilation - Subjects in deep coherence experience time dilation.",
-                summary: "Proof: Time Dilation",
-                type: "TEXT",
-                projectId: research.id,
-                authorId: users["@Tech_Tom"],
-                parentId: rNodeB.id,
-                aiScore: 96
-            }
-        });
-
-        const rNodeD = await prisma.node.create({
-            data: {
-                content: "Branch 2: AI Simulation - Building a silicon brain with quantum gates.",
-                summary: "Branch 2: AI Simulation",
-                type: "TEXT",
-                projectId: research.id,
-                authorId: users["@Cyber_Corp"],
-                parentId: rNodeA.id,
-                aiScore: 85
-            }
-        });
-
-        const rNodeE = await prisma.node.create({
-            data: {
-                content: "Ending: Transcendence - Consciousness uploaded to the field.",
-                summary: "Ending: Transcendence",
-                type: "TEXT",
-                projectId: research.id,
-                authorId: users["@Monk_AI"],
-                parentId: rNodeC.id,
-                aiScore: 99
-            }
-        });
-
-        const rNodeF = await prisma.node.create({
-            data: {
-                content: "Error: Ghost in Machine - The simulation started dreaming.",
-                summary: "Error: Ghost in Machine",
-                type: "TEXT",
-                projectId: research.id,
-                authorId: users["@Hacker_X"],
-                parentId: rNodeD.id,
-                aiScore: 88
+                userId: projectAuthorId,
+                percentage: 100,
+                role: "Founder"
             }
         });
 
         results.push(research.title);
 
-        // Redirect to home page
-        return NextResponse.redirect(new URL('/', req.url), { status: 303 });
+        return NextResponse.json({ success: true, seeded: results, fixApplied: true });
 
     } catch (error) {
         console.error("Seeding failed:", error);
