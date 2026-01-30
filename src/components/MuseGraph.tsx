@@ -11,10 +11,114 @@ interface MuseGraphProps {
     onNodeClick?: (event: React.MouseEvent, node: Node) => void;
 }
 
-// ... existing imports ...
+// Helper constants & functions
+const nodeWidth = 240;
+const nodeHeight = 200;
+
+const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
+    const dagreGraph = new dagre.graphlib.Graph();
+    dagreGraph.setDefaultEdgeLabel(() => ({}));
+    dagreGraph.setGraph({ rankdir: 'TB', nodesep: 100, ranksep: 120 });
+
+    nodes.forEach((node) => {
+        dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+    });
+
+    edges.forEach((edge) => {
+        dagreGraph.setEdge(edge.source, edge.target);
+    });
+
+    dagre.layout(dagreGraph);
+
+    const layoutedNodes = nodes.map((node) => {
+        const nodeWithPosition = dagreGraph.node(node.id);
+        return {
+            ...node,
+            targetPosition: Position.Top,
+            sourcePosition: Position.Bottom,
+            position: {
+                x: nodeWithPosition.x - nodeWidth / 2,
+                y: nodeWithPosition.y - nodeHeight / 2,
+            },
+        };
+    });
+
+    return { nodes: layoutedNodes, edges };
+};
+
+const nodeTypes = {
+    museNode: MuseNode,
+};
 
 export function MuseGraph({ nodesData, onNodeClick }: MuseGraphProps) {
-    // ... logic ...
+    const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
+        const nodes: Node[] = nodesData.map((node) => {
+            const isCanon = node.isCanon;
+            const isRoot = !node.parentId;
+
+            // Shorten label for display
+            let label = node.content.substring(0, 30);
+            if (node.title) label = node.title;
+
+            // Fetch Author Name (Safe Check)
+            const authorName = node.author ? node.author.name : "Anonymous";
+
+            return {
+                id: node.id,
+                type: 'museNode',
+                position: { x: 0, y: 0 },
+                data: {
+                    label: label,
+                    isCanon: isCanon,
+                    isRoot: isRoot,
+                    authorName: authorName,
+                    aiScore: node.aiScore,
+                    summary: node.summary || node.content.substring(0, 50) + "..."
+                },
+            };
+        });
+
+        const edges: Edge[] = nodesData
+            .filter((n) => n.parentId)
+            .map((n) => {
+                const isWinner = (n.aiScore || 0) >= 95;
+                const isHighPotential = (n.aiScore || 0) >= 90;
+
+                let strokeColor = '#94a3b8';
+                let strokeWidth = 2;
+                let strokeDash = '5,5';
+                let animation = true;
+
+                if (isWinner) {
+                    strokeColor = '#eab308';
+                    strokeWidth = 4;
+                    strokeDash = '0';
+                } else if (isHighPotential) {
+                    strokeColor = '#3b82f6';
+                    strokeWidth = 3;
+                    strokeDash = '0';
+                }
+
+                return {
+                    id: `e${n.parentId}-${n.id}`,
+                    source: n.parentId,
+                    target: n.id,
+                    type: 'smoothstep',
+                    animated: animation,
+                    style: {
+                        stroke: strokeColor,
+                        strokeWidth: strokeWidth,
+                        strokeDasharray: strokeDash,
+                        opacity: 0.8
+                    }
+                };
+            });
+
+        return getLayoutedElements(nodes, edges);
+    }, [nodesData]);
+
+    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
     return (
         <div style={{ width: '100%', height: '600px', background: '#f8fafc', borderRadius: '24px', overflow: 'hidden', border: '1px solid #e2e8f0', position: 'relative' }}>
@@ -23,10 +127,16 @@ export function MuseGraph({ nodesData, onNodeClick }: MuseGraphProps) {
                 edges={edges}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
-                onNodeClick={onNodeClick} // Pass the click handler
+                onNodeClick={onNodeClick}
                 nodeTypes={nodeTypes}
                 fitView
-            // ... rest
+                minZoom={0.2}
+                maxZoom={4}
+                panOnScroll={false}
+                panOnDrag={true}
+                zoomOnScroll={true}
+                zoomOnPinch={true}
+                selectionOnDrag={false}
             >
                 <Background color="#cbd5e1" gap={24} size={1} />
                 <Controls showInteractive={true} />
