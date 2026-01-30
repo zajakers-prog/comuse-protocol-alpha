@@ -30,6 +30,25 @@ export function ProjectInterface({
 }: ProjectInterfaceProps) {
     const [mode, setMode] = useState<"graph" | "read" | "equity">("graph");
 
+    // Interactive Graph Logic
+    const [selectedNode, setSelectedNode] = useState<{ id: string, label: string } | null>(
+        // Default to the last canon node if available
+        lastCanonId ? { id: lastCanonId, label: "Canon Tip" } : null // Simple default
+    );
+
+    const handleNodeClick = (event: any, node: any) => {
+        if (!node) return;
+        console.log("Tree Node Clicked:", node.id);
+        setSelectedNode({
+            id: node.id,
+            label: node.data.label || "Selected Node"
+        });
+
+        // Scroll to form nicely
+        const form = document.getElementById("contribution-form");
+        if (form) form.scrollIntoView({ behavior: "smooth" });
+    };
+
     if (mode === "read") {
         return (
             <div>
@@ -100,12 +119,17 @@ export function ProjectInterface({
                             )}
 
                             {/* UNIFIED GRAPH: Interactive + Rich Metadata */}
-                            <MuseGraph nodesData={nodes} />
+                            <div className="relative">
+                                <MuseGraph nodesData={nodes} onNodeClick={handleNodeClick} />
+                                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-2 rounded-lg shadow border text-xs text-gray-500 pointer-events-none">
+                                    Click a node to reply/branch
+                                </div>
+                            </div>
                         </section>
 
                         <StoryViewer project={project} nodes={canon} />
 
-                        <div className="border-t pt-8">
+                        <div className="border-t pt-8" id="contribution-form">
                             <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                                 <PenTool size={20} />
                                 <span>Contribute to the Project</span>
@@ -113,7 +137,9 @@ export function ProjectInterface({
                             {userId ? (
                                 <ContributionForm
                                     projectId={project.id}
-                                    parentId={lastCanonId || undefined}
+                                    // Use selectedNode if available, else fallback
+                                    parentId={selectedNode?.id || lastCanonId || undefined}
+                                    parentLabel={selectedNode?.label}
                                     type="B"
                                 />
                             ) : (
