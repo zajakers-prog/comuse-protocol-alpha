@@ -77,6 +77,7 @@ export async function GET(req: Request) {
                 summary: "Seed A: Genesis",
                 isCanon: true,
                 aiScore: 94,
+                isPaidBoost: true,
                 aiData: JSON.stringify({ scores: { novelty: 10, osmuPotential: 9, collaborativeMagnetism: 10, marketDemand: 8 }, scoutOpinion: "Visually stunning concept.", status: "APPROVED" })
             }
         });
@@ -91,6 +92,7 @@ export async function GET(req: Request) {
                 parentId: nodeA.id,
                 isCanon: false,
                 aiScore: 89,
+                isPaidBoost: true,
                 aiData: JSON.stringify({ scores: { novelty: 8 }, scoutOpinion: "Good expansion.", status: "PENDING" })
             }
         });
@@ -105,6 +107,7 @@ export async function GET(req: Request) {
                 parentId: nodeB.id,
                 isCanon: false,
                 aiScore: 95,
+                isPaidBoost: true,
                 aiData: JSON.stringify({ scores: { novelty: 10 }, scoutOpinion: "Mind-bending twist.", status: "PENDING" })
             }
         });
@@ -133,6 +136,7 @@ export async function GET(req: Request) {
                 parentId: nodeC.id,
                 isCanon: false,
                 aiScore: 98,
+                isPaidBoost: true,
                 aiData: JSON.stringify({ scores: { novelty: 9 }, scoutOpinion: "Epic conclusion.", status: "PENDING" })
             }
         });
@@ -146,7 +150,9 @@ export async function GET(req: Request) {
                 authorId: users["@Frank_Bio"],
                 parentId: nodeC.id,
                 isCanon: false,
+                isCanon: false,
                 aiScore: 88,
+                isPaidBoost: true,
                 aiData: JSON.stringify({ scores: { novelty: 8 }, scoutOpinion: "Poetic but dark.", status: "PENDING" })
             }
         });
@@ -204,7 +210,9 @@ export async function GET(req: Request) {
                 projectId: research.id,
                 authorId: projectAuthorId,
                 isCanon: true,
+                isCanon: true,
                 aiScore: 98,
+                isPaidBoost: true,
                 aiData: JSON.stringify({ scores: { novelty: 10, osmuPotential: 10, collaborativeMagnetism: 10, marketDemand: 9 }, scoutOpinion: "Paradigm synthesis.", status: "APPROVED" })
             }
         });
