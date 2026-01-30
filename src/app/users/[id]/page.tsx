@@ -4,14 +4,15 @@ import { prisma } from "@/lib/prisma";
 import { formatDistanceToNow } from "date-fns";
 
 interface PageProps {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }
 
 export const dynamic = 'force-dynamic';
 
 export default async function UserProfilePage({ params }: PageProps) {
+    const { id } = await params;
     const user = await prisma.user.findUnique({
-        where: { id: params.id },
+        where: { id },
         include: {
             projects: { orderBy: { createdAt: "desc" } },
             nodes: {

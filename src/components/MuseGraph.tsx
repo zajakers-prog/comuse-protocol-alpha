@@ -121,7 +121,7 @@ export function MuseGraph({ nodesData, onNodeClick }: MuseGraphProps) {
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
     return (
-        <div style={{ width: '100%', height: '600px', background: '#f8fafc', borderRadius: '24px', overflow: 'hidden', border: '1px solid #e2e8f0', position: 'relative' }}>
+        <div className="w-full h-[75vh] md:h-[600px] bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 relative">
             <ReactFlow
                 nodes={nodes}
                 edges={edges}

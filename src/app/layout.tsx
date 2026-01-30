@@ -3,6 +3,7 @@ import { Inter, Merriweather, Noto_Sans_KR, Noto_Serif_KR } from "next/font/goog
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/Navbar";
+import { BottomNav } from "@/components/BottomNav";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const merriweather = Merriweather({
@@ -37,10 +38,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${merriweather.variable} ${notoSansKr.variable} ${notoSerifKr.variable} font-sans antialiased bg-gray-50 text-gray-900`}>
         <Providers>
-          <Navbar />
-          <main className="min-h-screen">
+          <div className="hidden md:block">
+            <Navbar />
+          </div>
+          <main className="min-h-screen pb-20 md:pb-0">
             {children}
           </main>
+          <BottomNav />
         </Providers>
       </body>
     </html>
