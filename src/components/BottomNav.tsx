@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, PenTool, User } from "lucide-react";
+import { Home, PenTool, User, Wallet } from "lucide-react";
 
 export function BottomNav() {
     const pathname = usePathname();
@@ -10,7 +10,7 @@ export function BottomNav() {
     const tabs = [
         { name: "Home", href: "/", icon: Home },
         { name: "Write", href: "/projects/create", icon: PenTool },
-        { name: "My Equity", href: "/users/me", icon: User }, // Redirects to profile usually
+        { name: "Wallet", href: "/dashboard/wallet", icon: Wallet }, // Updated to Wallet
     ];
 
     return (

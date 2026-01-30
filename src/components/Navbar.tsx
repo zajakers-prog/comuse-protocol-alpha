@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
-import { PenTool, LogOut, User } from "lucide-react";
+import { PenTool, LogOut, User, Wallet } from "lucide-react";
 
 export function Navbar() {
     const { data: session } = useSession();
@@ -23,6 +23,13 @@ export function Navbar() {
                             >
                                 <PenTool size={16} />
                                 Start a Seed
+                            </Link>
+                            <Link
+                                href="/dashboard/wallet"
+                                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors text-sm font-medium ml-2"
+                            >
+                                <Wallet size={16} />
+                                <span>Vault</span>
                             </Link>
                             <div className="flex items-center gap-4 ml-4">
                                 <span className="text-sm text-gray-600 hidden sm:block">
