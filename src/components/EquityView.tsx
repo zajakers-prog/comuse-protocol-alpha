@@ -5,6 +5,7 @@ import { PieChart, Users } from "lucide-react";
 interface EquityViewProps {
     nodes: {
         author: { name: string | null; email: string | null };
+        aiScore?: number | null;
     }[];
     projectAuthor: { name: string | null; email: string | null };
 }
@@ -14,31 +15,41 @@ export function EquityView({ nodes, projectAuthor }: EquityViewProps) {
     // Logic: Project Author gets 10 shares (Spark).
     // Every accepted node (or currently ALL nodes for demo) grants 1 share.
 
-    const shares: Record<string, number> = {};
+    const scoreMap: Record<string, number> = {};
     const names: Record<string, string> = {};
 
-    // Initialize with Project Author (Spark)
+    // 1. Project Author gets "Founder Bonus" (e.g., 500 points)
     const authorKey = projectAuthor.email || "anonymous";
-    shares[authorKey] = 10; // Founder Spark Value
+    scoreMap[authorKey] = 500;
     names[authorKey] = projectAuthor.name || "Anonymous";
 
-    // Add contributions
+    // 2. Calculate Weighted Score for Contributors
     nodes.forEach(node => {
         const key = node.author.email || "anonymous";
-        shares[key] = (shares[key] || 0) + 1;
-        names[key] = node.author.name || "Anonymous";
+
+        // Equity Formula: Base(10) + AI Score (Quality)
+        // If AI Score is null (old nodes), assume 50.
+        const qualityScore = node.aiScore || 50;
+        const nodeValue = 10 + qualityScore;
+
+        scoreMap[key] = (scoreMap[key] || 0) + nodeValue;
+
+        // Keep name logic safe
+        if (!names[key] && node.author.name) {
+            names[key] = node.author.name;
+        }
     });
 
-    const totalShares = Object.values(shares).reduce((a, b) => a + b, 0);
+    const totalScore = Object.values(scoreMap).reduce((a, b) => a + b, 0);
 
-    const equityData = Object.entries(shares)
-        .map(([email, count]) => ({
-            name: names[email],
+    const equityData = Object.entries(scoreMap)
+        .map(([email, score]) => ({
+            name: names[email] || "Anonymous",
             email,
-            count, // This count is "shares" now, not just nodes count, but roughly aligns
-            percentage: (count / totalShares) * 100
+            score: Math.round(score), // Display score for transparency
+            percentage: totalScore === 0 ? 0 : (score / totalScore) * 100
         }))
-        .sort((a, b) => b.count - a.count);
+        .sort((a, b) => b.score - a.score);
 
     return (
         <div className="max-w-2xl mx-auto bg-white p-8 rounded-xl border border-gray-200 shadow-sm">
@@ -61,7 +72,7 @@ export function EquityView({ nodes, projectAuthor }: EquityViewProps) {
                             </div>
                             <div>
                                 <div className="font-medium text-gray-900">{data.name}</div>
-                                <div className="text-xs text-gray-500">{data.count} contributions</div>
+                                <div className="text-xs text-gray-500">{data.score} points</div>
                             </div>
                         </div>
                         <div className="flex-1 ml-4"> {/* Added ml-4 for spacing */}
@@ -87,7 +98,7 @@ export function EquityView({ nodes, projectAuthor }: EquityViewProps) {
             </div>
 
             <div className="mt-8 pt-6 border-t text-center text-xs text-gray-400">
-                * The Project Creator receives 1 initial share for the Spark.
+                * Equity is weighted: Base (10) + AI Quality Score (0-100). High quality = More ownership.
             </div>
         </div>
     );

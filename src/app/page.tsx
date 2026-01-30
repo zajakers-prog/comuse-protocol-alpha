@@ -7,7 +7,10 @@ export const dynamic = 'force-dynamic';
 
 export default async function Home() {
   const projects = await prisma.project.findMany({
-    orderBy: { createdAt: "desc" },
+    orderBy: [
+      // Logic: Projects with recent updates go first
+      { updatedAt: "desc" },
+    ],
     include: {
       author: true,
       _count: {
@@ -16,14 +19,17 @@ export default async function Home() {
           equity: true
         },
       },
-      // Fetch nodes to manually count unique contributors if needed
       nodes: {
+        // Fetch specific fields to calculate 'Hot Score'
         select: {
-          authorId: true,
-          summary: true,
           aiScore: true,
+          isPaidBoost: true,
+          summary: true,
+          authorId: true,
           parentId: true
-        }
+        },
+        take: 5, // Just check recent nodes for badges
+        orderBy: { aiScore: 'desc' } // Get best nodes
       }
     },
   });
@@ -107,8 +113,13 @@ export default async function Home() {
 
             return (
               <article key={project.id} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group relative overflow-hidden">
-                {/* AI Score Badge */}
-                {aiScore > 0 && (
+                {/* Badges: AI Score or Trending */}
+                {/* Logic: If heavily boosted or high score, show Trending Fire */}
+                {project.nodes.some(n => n.isPaidBoost) ? (
+                  <div className="absolute top-0 right-0 bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-bold px-4 py-2 rounded-bl-2xl z-10 shadow-lg flex items-center gap-1">
+                    <span>🔥 Trending</span>
+                  </div>
+                ) : aiScore > 0 && (
                   <div className="absolute top-0 right-0 bg-black text-white text-xs font-bold px-4 py-2 rounded-bl-2xl z-10">
                     Muse Score: {aiScore}
                   </div>

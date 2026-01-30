@@ -37,17 +37,17 @@ export function WeaverReport({ aiDataString, summary }: WeaverReportProps) {
                     <h2 className="text-2xl font-serif font-bold">IP Value Scoreboard</h2>
                 </div>
                 <div className="text-right">
-                    <ScoreDisplay value={totalIpIndex} isTotal />
+                    <ScoreDisplay value={totalIpIndex || 0} isTotal />
                     <div className="text-xs text-gray-400 uppercase tracking-widest">Total IP Index</div>
                 </div>
             </div>
 
             {/* Scores */}
             <div className="grid grid-cols-2 md:grid-cols-4 border-b border-gray-100">
-                <ScoreItem icon={<Zap />} label="Novelty" score={scores.novelty} color="text-yellow-600" />
-                <ScoreItem icon={<TrendingUp />} label="OSMU" score={scores.osmuPotential} color="text-blue-600" />
-                <ScoreItem icon={<Users />} label="Magnetism" score={scores.collaborativeMagnetism} color="text-purple-600" />
-                <ScoreItem icon={<Award />} label="Market Hit" score={scores.marketDemand} color="text-green-600" />
+                <ScoreItem icon={<Zap />} label="Novelty" score={scores.novelty || 0} color="text-yellow-600" />
+                <ScoreItem icon={<TrendingUp />} label="OSMU" score={scores.osmuPotential || 0} color="text-blue-600" />
+                <ScoreItem icon={<Users />} label="Magnetism" score={scores.collaborativeMagnetism || 0} color="text-purple-600" />
+                <ScoreItem icon={<Award />} label="Market Hit" score={scores.marketDemand || 0} color="text-green-600" />
             </div>
 
             {/* Analysis Content */}
