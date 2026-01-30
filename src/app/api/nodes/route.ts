@@ -38,7 +38,16 @@ export async function POST(req: Request) {
                 isPaidBoost, // High quality gets boosted visibility
                 type,
                 project: { connect: { id: projectId } },
-                author: { connect: { email: session.user.email! } },
+                author: {
+                    connectOrCreate: {
+                        where: { email: session.user.email! },
+                        create: {
+                            email: session.user.email!,
+                            name: session.user.name || "Anonymous Builder",
+                            image: session.user.image,
+                        }
+                    }
+                },
                 parent: parentId ? { connect: { id: parentId } } : undefined,
             },
         });
