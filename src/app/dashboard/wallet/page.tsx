@@ -1,14 +1,29 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { Wallet, DollarSign, ArrowUpRight, History } from "lucide-react";
+import { Wallet, DollarSign, ArrowUpRight, History, AlertTriangle } from "lucide-react";
+import { WithdrawButton } from "./WithdrawButton"; // New Client Component
+
+export const dynamic = 'force-dynamic';
 
 export default async function WalletPage() {
     const session = await auth();
-    if (!session?.user) redirect("/");
 
+    // 1. Session Check
+    if (!session?.user?.email) {
+        return (
+            <div className="container mx-auto p-8 text-center">
+                <AlertTriangle className="mx-auto text-yellow-500 mb-4" size={48} />
+                <h1 className="text-xl font-bold">Access Denied</h1>
+                <p className="text-gray-600 mb-4">You must be logged in to view your wallet.</p>
+                <a href="/api/auth/signin" className="underline text-blue-600">Sign In</a>
+            </div>
+        );
+    }
+
+    // 2. Database Lookup
     const user = await prisma.user.findUnique({
-        where: { email: session.user.email! },
+        where: { email: session.user.email },
         select: {
             id: true,
             name: true,
@@ -17,7 +32,17 @@ export default async function WalletPage() {
         }
     });
 
-    if (!user) redirect("/");
+    // 3. User Not Found Handle
+    if (!user) {
+        return (
+            <div className="container mx-auto p-8 text-center">
+                <AlertTriangle className="mx-auto text-red-500 mb-4" size={48} />
+                <h1 className="text-xl font-bold">Account Error</h1>
+                <p className="text-gray-600">Could not find user record for {session.user.email}.</p>
+                <p className="text-sm text-gray-500 mt-2">Try signing out and back in.</p>
+            </div>
+        );
+    }
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-2xl">
@@ -57,13 +82,9 @@ export default async function WalletPage() {
 
             {/* Actions */}
             <div className="grid grid-cols-2 gap-4 mb-8">
-                <button className="bg-white border border-gray-200 p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors shadow-sm group">
-                    <div className="p-3 bg-green-50 text-green-600 rounded-full group-hover:bg-green-100 transition-colors">
-                        <ArrowUpRight size={20} />
-                    </div>
-                    <span className="font-medium text-sm text-gray-700">Withdraw</span>
-                </button>
-                <button className="bg-white border border-gray-200 p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors shadow-sm group">
+                <WithdrawButton balance={user.pendingBalance || 0} />
+
+                <button className="bg-white border text-left border-gray-200 p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors shadow-sm group">
                     <div className="p-3 bg-blue-50 text-blue-600 rounded-full group-hover:bg-blue-100 transition-colors">
                         <History size={20} />
                     </div>
