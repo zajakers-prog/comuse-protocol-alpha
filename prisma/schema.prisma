@@ -22,6 +22,8 @@ model User {
   nodes         Node[]    // Nodes created by user
   contributions Contribution[] // Equity in projects
   votes         Vote[]
+  walletAddress String?   @unique // Virtual Ethereum Wallet
+  pendingBalance Float    @default(0.0) // USDC Balance
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -123,5 +125,13 @@ model Vote {
   createdAt DateTime @default(now())
 
   @@unique([userId, nodeId])
+}
+
+model SettlementLog {
+  id          String   @id @default(cuid())
+  projectId   String
+  totalAmount Float
+  details     String   // JSON string of distribution details
+  createdAt   DateTime @default(now())
 }
 
