@@ -6,230 +6,185 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
     try {
-        console.log("Starting Seed Fix...");
-        const demoUserEmail = "demo@comuse.app";
+        console.log("Starting Seed Fix: The Vanishing Window...");
 
-        // 1. Upsert Demo User
-        const author = await prisma.user.upsert({
-            where: { email: demoUserEmail },
-            update: {},
-            create: {
-                email: demoUserEmail,
-                name: "Jason (Founder)",
-            }
-        });
-
-        // 2. Clear OLD Data
-        // Order matters: Vote -> Contribution -> Node -> Project
+        // 1. Clean up old data
         await prisma.vote.deleteMany({});
         await prisma.contribution.deleteMany({});
         await prisma.node.deleteMany({});
         await prisma.project.deleteMany({});
+        await prisma.user.deleteMany({}); // Optional: Reset users too for clean slate
 
-        const results = [];
-
-        // 3. Upsert Contributors
-        const contributors = [
-            { email: "alice@comuse.app", name: "Alice (Writer)", handle: "@Alice_Noir" },
-            { email: "bob@comuse.app", name: "Bob (SciFi)", handle: "@Bob_SciFi" },
-            { email: "david@comuse.app", name: "David (Elite)", handle: "@David_Elite" },
-            { email: "eve@comuse.app", name: "Eve (Punk)", handle: "@Eve_Punk" },
-            { email: "frank@comuse.app", name: "Frank (Bio)", handle: "@Frank_Bio" },
-            { email: "grace@comuse.app", name: "Grace (Cop)", handle: "@Grace_Cop" },
-            { email: "sarah@comuse.app", name: "Sarah (Lab)", handle: "@Dr_Sarah" },
-            { email: "tom@comuse.app", name: "Tom (Tech)", handle: "@Tech_Tom" },
-            { email: "corp@comuse.app", name: "Cyber Corp", handle: "@Cyber_Corp" },
-            { email: "monk@comuse.app", name: "Monk AI", handle: "@Monk_AI" },
-            { email: "x@comuse.app", name: "Hacker X", handle: "@Hacker_X" },
+        // 2. Create Users (The Global Team)
+        // We use upsert just in case, but deleteMany cleared them mainly.
+        const usersData = [
+            { name: 'Smith 🇺🇸', email: 'smith@example.com' },
+            { name: 'Kimura Shingo 🇯🇵', email: 'kimura@example.com' },
+            { name: 'Pierre Buffon 🇮🇹', email: 'pierre@example.com' },
+            { name: 'Shim Sa-rang 🇰🇷', email: 'sarang@example.com' },
+            { name: 'Ling Ling 🇭🇰', email: 'lingling@example.com' },
+            { name: 'Michael 🇨🇦', email: 'michael@example.com' },
+            { name: 'Chris (MIT) 🇺🇸', email: 'chris@example.com' },
+            { name: 'Ashley (Harvard)', email: 'ashley@example.com' },
+            { name: 'Julia', email: 'julia@example.com' },
         ];
 
-        const users: Record<string, string> = {}; // handle -> id
+        const usersMap: Record<string, string> = {}; // email -> id
 
-        for (const c of contributors) {
-            const u = await prisma.user.upsert({
-                where: { email: c.email },
-                update: {},
-                create: { email: c.email, name: c.name }
-            });
-            users[c.handle] = u.id;
+        for (const u of usersData) {
+            const user = await prisma.user.create({ data: u });
+            usersMap[u.email] = user.id;
         }
 
-        const projectAuthorId = author.id;
-        users["@Jason_Founder"] = author.id;
+        const getId = (email: string) => usersMap[email];
 
-        // Case A: Chronicles of the Glass City (Novel)
-        const novel = await prisma.project.create({
+        // 3. Create Project
+        const project = await prisma.project.create({
             data: {
-                title: "Chronicles of the Glass City",
-                description: "A cyberpunk noir set in a city made entirely of transparent smart-glass, where privacy is the ultimate currency.",
-                type: "STORY",
-                authorId: projectAuthorId,
-            }
+                title: 'The Vanishing Window',
+                description: 'A mystery about a window that only exists when you step on a specific manhole cover.',
+                type: 'STORY',
+                authorId: getId('smith@example.com'),
+            },
         });
 
-        // Seed Nodes for Novel
-        const nodeA = await prisma.node.create({
+        // 4. Create Nodes (The Story Tree)
+
+        // Root Node (Smith's Idea)
+        const rootNode = await prisma.node.create({
             data: {
-                content: "Seed A: Genesis - Welcome to Veridia, the Glass City. Here, walls don't hide secrets; they display them. I am a 'Smudger', one of the few who can buy you an hour of true darkness.",
-                type: "TEXT",
-                projectId: novel.id,
-                authorId: projectAuthorId,
-                summary: "Seed A: Genesis",
+                content: "It started with a rhythmic clack. Every time my right heel struck the manhole cover on 5th Avenue, the window appeared. A small, red-bricked window on the third floor of the bakery. Step off, it's gone. Step on, it's back. I've walked this street a thousand times, but today was the first time I noticed *her* standing in it.",
+                type: 'TEXT',
+                projectId: project.id,
+                authorId: getId('smith@example.com'),
+                summary: "The Manhole Trigger",
                 isCanon: true,
-                aiScore: 94,
+                aiScore: 92,
                 isPaidBoost: true,
-                aiData: JSON.stringify({ scores: { novelty: 10, osmuPotential: 9, collaborativeMagnetism: 10, marketDemand: 8 }, scoutOpinion: "Visually stunning concept.", status: "APPROVED" })
-            }
+            },
         });
 
-        const nodeB = await prisma.node.create({
+        // --- Branch A: Thriller (Kimura -> Pierre) ---
+        const nodeA1 = await prisma.node.create({
             data: {
-                content: "Branch 1: The Smudgers - We operate in the steam tunnels. The only place the glass can't reach.",
-                summary: "Branch 1: The Smudgers",
-                type: "TEXT",
-                projectId: novel.id,
-                authorId: users["@Alice_Noir"],
-                parentId: nodeA.id,
+                content: "I tested it three times. Clack. Window. Silence. Wall. It wasn't a hologram. It was a spatial rift. I decided to wait until nightfall. If the window existed, surely the room behind it did too. I bought a ladder.",
+                type: 'TEXT',
+                projectId: project.id,
+                authorId: getId('kimura@example.com'),
+                parentId: rootNode.id,
+                summary: "Spatial Rift Test",
+                isCanon: true,
+                aiScore: 85,
+                isPaidBoost: true, // Boost high score
+            },
+        });
+
+        const nodeA2 = await prisma.node.create({
+            data: {
+                content: "The room wasn't empty. It was filled with files. Government files. Dates from 1950 to 2030. Wait, 2030? That's five years from now. I saw a file labeled 'Project: Vanishing Point' and my own name was on the cover.",
+                type: 'TEXT',
+                projectId: project.id,
+                authorId: getId('pierre@example.com'),
+                parentId: nodeA1.id,
+                summary: "Future Files Found",
+                isCanon: true,
+                aiScore: 88,
+                isPaidBoost: true,
+            },
+        });
+
+        // --- Branch B: SF/Multiverse (Michael -> Chris) ---
+        const nodeB1 = await prisma.node.create({
+            data: {
+                content: "The manhole cover wasn't a trigger. It was a stabilizer. The window was always there, vibrating at a frequency our eyes couldn't perceive. The impact of my step synchronized my visual cortex for a split second.",
+                type: 'TEXT',
+                projectId: project.id,
+                authorId: getId('michael@example.com'),
+                parentId: rootNode.id,
+                summary: "Frequency Stabilizer Idea",
+                isCanon: false,
+                aiScore: 78,
+            },
+        });
+
+        const nodeB2 = await prisma.node.create({
+            data: {
+                content: "Quantum entanglement suggests that the observer affects reality. But here, the observer *creates* it. I calculated the oscillation frequency: 440Hz. The exact pitch of an 'A' note.",
+                type: 'TEXT',
+                projectId: project.id,
+                authorId: getId('chris@example.com'),
+                parentId: nodeB1.id,
+                summary: "Observer Effect 440Hz",
+                isCanon: false,
+                aiScore: 81,
+            },
+        });
+
+        // --- The Ending War (Shim Sa-rang vs Ling Ling) ---
+
+        // Ending 1: Open Ending (Shim Sa-rang) - Currently Winning
+        const ending1 = await prisma.node.create({
+            data: {
+                content: "I left the file there. Some truths represent a burden too heavy for one timeline. I stepped off the manhole, and the window vanished forever. Or so I thought, until I saw the same window on my own apartment building.",
+                type: 'TEXT',
+                projectId: project.id,
+                authorId: getId('sarang@example.com'),
+                parentId: nodeA2.id,
+                summary: "Burden of Truth",
+                isCanon: true,
+                aiScore: 95,
+                isPaidBoost: true,
+            },
+        });
+
+        // Ending 2: Tragic Ending (Ling Ling) - Challenger
+        const ending2 = await prisma.node.create({
+            data: {
+                content: "I reached for the file, but a hand grabbed my wrist. 'You shouldn't have seen that,' she whispered. The last thing I felt was the cold air as she pushed me out. The fall didn't kill me. The disappearance of the window did. I was trapped in the wall.",
+                type: 'TEXT',
+                projectId: project.id,
+                authorId: getId('lingling@example.com'),
+                parentId: nodeA2.id,
+                summary: "Trapped in the Wall",
                 isCanon: false,
                 aiScore: 89,
                 isPaidBoost: true,
-                aiData: JSON.stringify({ scores: { novelty: 8 }, scoutOpinion: "Good expansion.", status: "PENDING" })
-            }
+            },
         });
 
-        const nodeC = await prisma.node.create({
-            data: {
-                content: "Twist: The Glass is Alive - It's not just silicone. It's a silicon-based lifeform that feeds on light.",
-                summary: "Twist: The Glass is Alive",
-                type: "TEXT",
-                projectId: novel.id,
-                authorId: users["@Bob_SciFi"],
-                parentId: nodeB.id,
-                isCanon: false,
-                aiScore: 95,
-                isPaidBoost: true,
-                aiData: JSON.stringify({ scores: { novelty: 10 }, scoutOpinion: "Mind-bending twist.", status: "PENDING" })
-            }
+        // 5. Simulate Votes
+        await prisma.vote.createMany({
+            data: [
+                { userId: getId('smith@example.com'), nodeId: ending1.id, value: 1 },
+                { userId: getId('kimura@example.com'), nodeId: ending1.id, value: 1 },
+                { userId: getId('ashley@example.com'), nodeId: ending1.id, value: 1 },
+            ]
         });
 
-        const nodeD = await prisma.node.create({
-            data: {
-                content: "Branch 2: Corporate Eye - From the penthouse, I watch them scurry. The transparency ensures order.",
-                summary: "Branch 2: Corporate Eye",
-                type: "TEXT",
-                projectId: novel.id,
-                authorId: users["@David_Elite"],
-                parentId: nodeA.id,
-                isCanon: false,
-                aiScore: 82,
-                aiData: JSON.stringify({ scores: { novelty: 6 }, scoutOpinion: "Standard trope.", status: "PENDING" })
-            }
+        await prisma.vote.createMany({
+            data: [
+                { userId: getId('lingling@example.com'), nodeId: ending2.id, value: 1 },
+                { userId: getId('pierre@example.com'), nodeId: ending2.id, value: 1 },
+            ]
         });
 
-        const nodeE = await prisma.node.create({
-            data: {
-                content: "Ending: Shatter - We found the resonant frequency. Tomorrow, the city falls.",
-                summary: "Ending: Shatter",
-                type: "TEXT",
-                projectId: novel.id,
-                authorId: users["@Eve_Punk"],
-                parentId: nodeC.id,
-                isCanon: false,
-                aiScore: 98,
-                isPaidBoost: true,
-                aiData: JSON.stringify({ scores: { novelty: 9 }, scoutOpinion: "Epic conclusion.", status: "PENDING" })
-            }
-        });
+        // 6. Fix Contributions
+        // We explicitly create contributions for all active nodes to ensure Equity View works perfectly.
+        const allNodes = [rootNode, nodeA1, nodeA2, nodeB1, nodeB2, ending1, ending2];
+        const uniqueAuthors = Array.from(new Set(allNodes.map(n => n.authorId)));
 
-        const nodeF = await prisma.node.create({
-            data: {
-                content: "Ending: Symbiosis - We accepted the transparency. We are becoming glass.",
-                summary: "Ending: Symbiosis",
-                type: "TEXT",
-                projectId: novel.id,
-                authorId: users["@Frank_Bio"],
-                parentId: nodeC.id,
-                isCanon: false,
-                isCanon: false,
-                aiScore: 88,
-                isPaidBoost: true,
-                aiData: JSON.stringify({ scores: { novelty: 8 }, scoutOpinion: "Poetic but dark.", status: "PENDING" })
-            }
-        });
-
-        const nodeG = await prisma.node.create({
-            data: {
-                content: "Subplot: Reflection - The AI fell in love with a reflection in a broken shard.",
-                summary: "Subplot: Reflection",
-                type: "TEXT",
-                projectId: novel.id,
-                authorId: users["@Grace_Cop"],
-                parentId: nodeD.id,
-                isCanon: false,
-                aiScore: 80,
-                aiData: JSON.stringify({ scores: { novelty: 7 }, scoutOpinion: "Interesting sidebar.", status: "PENDING" })
-            }
-        });
-
-        // 4. Create Contributions (CRITICAL STEP for "7 Contributors" count)
-        const distinctAuthors = [
-            users["@Jason_Founder"], users["@Alice_Noir"], users["@Bob_SciFi"],
-            users["@David_Elite"], users["@Eve_Punk"], users["@Frank_Bio"], users["@Grace_Cop"]
-        ];
-
-        for (const uid of distinctAuthors) {
-            if (!uid) continue;
+        for (const uid of uniqueAuthors) {
             await prisma.contribution.create({
                 data: {
-                    projectId: novel.id,
+                    projectId: project.id,
                     userId: uid,
-                    percentage: uid === projectAuthorId ? 10 : 1,
-                    role: uid === projectAuthorId ? "Founder" : "Contributor"
+                    percentage: 10, // Placeholder, frontend calcs weighted
+                    role: uid === project.authorId ? "Founder" : "Contributor"
                 }
             });
         }
 
-        results.push(novel.title);
-
-
-        // Case B: Quantum Consciousness Protocol
-        const research = await prisma.project.create({
-            data: {
-                title: "Quantum Consciousness Protocol",
-                description: "Collaborative research paper exploring the intersection of quantum mechanics and human cognition.",
-                type: "RESEARCH",
-                authorId: projectAuthorId,
-            }
-        });
-
-        const rNodeA = await prisma.node.create({
-            data: {
-                content: "Seed A: Hypothesis - Reducing Orch-OR theory to practice. Can we detect quantum vibrations in microtubules?",
-                summary: "Seed A: Hypothesis",
-                type: "TEXT",
-                projectId: research.id,
-                authorId: projectAuthorId,
-                isCanon: true,
-                isCanon: true,
-                aiScore: 98,
-                isPaidBoost: true,
-                aiData: JSON.stringify({ scores: { novelty: 10, osmuPotential: 10, collaborativeMagnetism: 10, marketDemand: 9 }, scoutOpinion: "Paradigm synthesis.", status: "APPROVED" })
-            }
-        });
-
-        // Similar simplified nodes for Research to save space, but ensuring contributions
-        await prisma.contribution.create({
-            data: {
-                projectId: research.id,
-                userId: projectAuthorId,
-                percentage: 100,
-                role: "Founder"
-            }
-        });
-
-        results.push(research.title);
-
-        return NextResponse.json({ success: true, seeded: results, fixApplied: true });
+        return NextResponse.json({ success: true, seeded: [project.title], fixApplied: true });
 
     } catch (error) {
         console.error("Seeding failed:", error);

@@ -1,152 +1,186 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient();
-
-// Mock AI to ensure seed data has summaries/scores without running the actual AI service during seed
-const mockAI = {
-    summary: (text: string) => {
-        if (text.includes("Signal")) return "A sci-fi thriller about a lone survivor receiving a mysterious transmission.";
-        if (text.includes("Dragon")) return "A fantasy epic about a dragon hoarding memories instead of gold.";
-        return text.substring(0, 50) + "...";
-    },
-    score: (text: string) => {
-        return 80 + Math.floor(Math.random() * 19);
-    }
-};
+const prisma = new PrismaClient()
 
 async function main() {
-    console.log('🌱 Starting Golden Sample Seed...');
+    // 1. Clean up old data
+    try {
+        await prisma.vote.deleteMany()
+        await prisma.contribution.deleteMany() // Clean up contributions too if they exist
+        await prisma.node.deleteMany()
+        await prisma.project.deleteMany()
+        await prisma.user.deleteMany()
+    } catch (e) {
+        console.log('Clean up skipped or partial (first run)')
+    }
 
-    // 1. Clean up
-    await prisma.vote.deleteMany();
-    await prisma.contribution.deleteMany();
-    await prisma.node.deleteMany();
-    await prisma.project.deleteMany();
-    await prisma.user.deleteMany();
+    console.log('🧹 Cleaned up database...')
 
-    // 2. Create Users (Personas)
+    // 2. Create Users (The Global Team)
     const users = await Promise.all([
-        prisma.user.create({ data: { name: 'WriterAlpha', email: 'alpha@demo.com', image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alpha' } }), // The Visionary
-        prisma.user.create({ data: { name: 'ProEditor', email: 'editor@demo.com', image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Editor' } }), // The Polisher
-        prisma.user.create({ data: { name: 'SciFiFan99', email: 'fan@demo.com', image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Fan' } }), // The Audience
-        prisma.user.create({ data: { name: 'Dr_Quantum', email: 'quantum@demo.com', image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Quantum' } }), // The Expert
-        prisma.user.create({ data: { name: 'NarrativeDesigner', email: 'designer@demo.com', image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Designer' } }), // The Architect
-    ]);
+        prisma.user.create({ data: { name: 'Smith 🇺🇸', email: 'smith@example.com' } }),
+        prisma.user.create({ data: { name: 'Kimura Shingo 🇯🇵', email: 'kimura@example.com' } }),
+        prisma.user.create({ data: { name: 'Pierre Buffon 🇮🇹', email: 'pierre@example.com' } }),
+        prisma.user.create({ data: { name: 'Shim Sa-rang 🇰🇷', email: 'sarang@example.com' } }),
+        prisma.user.create({ data: { name: 'Ling Ling 🇭🇰', email: 'lingling@example.com' } }),
+        prisma.user.create({ data: { name: 'Michael 🇨🇦', email: 'michael@example.com' } }),
+        prisma.user.create({ data: { name: 'Chris (MIT) 🇺🇸', email: 'chris@example.com' } }),
+        prisma.user.create({ data: { name: 'Ashley (Harvard)', email: 'ashley@example.com' } }),
+        prisma.user.create({ data: { name: 'Julia', email: 'julia@example.com' } }),
+    ])
 
-    const [alpha, editor, fan, quantum, designer] = users;
+    const [smith, kimura, pierre, sarang, lingling, michael, chris, ashley, julia] = users
 
-    // Helper
-    const createProject = async (title: string, desc: string, type: string, author: any) => {
-        return await prisma.project.create({
-            data: { title, description: desc, type, authorId: author.id },
-        });
-    };
+    // 3. Create Project
+    const project = await prisma.project.create({
+        data: {
+            title: 'The Vanishing Window',
+            description: 'A mystery about a window that only exists when you step on a specific manhole cover.',
+            type: 'STORY',
+            authorId: smith.id,
+        },
+    })
 
-    const createNode = async (content: string, project: any, author: any, parentId: string | null = null, isCanon: boolean = false, score: number = 0) => {
-        return await prisma.node.create({
+    console.log(`✨ Project Created: ${project.title}`)
+
+    // 4. Create Nodes (The Story Tree)
+
+    // Root Node (Smith's Idea)
+    const rootNode = await prisma.node.create({
+        data: {
+            content: "It started with a rhythmic clack. Every time my right heel struck the manhole cover on 5th Avenue, the window appeared. A small, red-bricked window on the third floor of the bakery. Step off, it's gone. Step on, it's back. I've walked this street a thousand times, but today was the first time I noticed *her* standing in it.",
+            type: 'TEXT',
+            projectId: project.id,
+            authorId: smith.id,
+            isCanon: true, // The root is always canon
+            aiScore: 92,
+        },
+    })
+
+    // --- Branch A: Thriller (Kimura -> Pierre) ---
+    const nodeA1 = await prisma.node.create({
+        data: {
+            content: "I tested it three times. Clack. Window. Silence. Wall. It wasn't a hologram. It was a spatial rift. I decided to wait until nightfall. If the window existed, surely the room behind it did too. I bought a ladder.",
+            type: 'TEXT',
+            projectId: project.id,
+            authorId: kimura.id,
+            parentId: rootNode.id,
+            isCanon: true,
+            aiScore: 85,
+        },
+    })
+
+    const nodeA2 = await prisma.node.create({
+        data: {
+            content: "The room wasn't empty. It was filled with files. Government files. Dates from 1950 to 2030. Wait, 2030? That's five years from now. I saw a file labeled 'Project: Vanishing Point' and my own name was on the cover.",
+            type: 'TEXT',
+            projectId: project.id,
+            authorId: pierre.id,
+            parentId: nodeA1.id,
+            isCanon: true,
+            aiScore: 88,
+        },
+    })
+
+    // --- Branch B: SF/Multiverse (Michael -> Chris) ---
+    // Note: NOT Canon yet, just a candidate branch
+    const nodeB1 = await prisma.node.create({
+        data: {
+            content: "The manhole cover wasn't a trigger. It was a stabilizer. The window was always there, vibrating at a frequency our eyes couldn't perceive. The impact of my step synchronized my visual cortex for a split second.",
+            type: 'TEXT',
+            projectId: project.id,
+            authorId: michael.id,
+            parentId: rootNode.id,
+            isCanon: false,
+            aiScore: 78,
+        },
+    })
+
+    const nodeB2 = await prisma.node.create({
+        data: {
+            content: "Quantum entanglement suggests that the observer affects reality. But here, the observer *creates* it. I calculated the oscillation frequency: 440Hz. The exact pitch of an 'A' note.",
+            type: 'TEXT',
+            projectId: project.id,
+            authorId: chris.id,
+            parentId: nodeB1.id,
+            isCanon: false,
+            aiScore: 81,
+        },
+    })
+
+    // --- The Ending War (Shim Sa-rang vs Ling Ling) ---
+
+    // Ending 1: Open Ending (Shim Sa-rang) - Currently Winning
+    const ending1 = await prisma.node.create({
+        data: {
+            content: "I left the file there. Some truths represent a burden too heavy for one timeline. I stepped off the manhole, and the window vanished forever. Or so I thought, until I saw the same window on my own apartment building.",
+            type: 'TEXT',
+            projectId: project.id,
+            authorId: sarang.id,
+            parentId: nodeA2.id,
+            isCanon: true, // Currently winning
+            aiScore: 95,
+            isPaidBoost: true, // Add boost for high score (logic consistency)
+        },
+    })
+
+    // Ending 2: Tragic Ending (Ling Ling) - Challenger
+    const ending2 = await prisma.node.create({
+        data: {
+            content: "I reached for the file, but a hand grabbed my wrist. 'You shouldn't have seen that,' she whispered. The last thing I felt was the cold air as she pushed me out. The fall didn't kill me. The disappearance of the window did. I was trapped in the wall.",
+            type: 'TEXT',
+            projectId: project.id,
+            authorId: lingling.id,
+            parentId: nodeA2.id,
+            isCanon: false,
+            aiScore: 89,
+            isPaidBoost: true,
+        },
+    })
+
+    console.log('🌳 Tree Grown: 2 Branches, 2 Endings')
+
+    // 5. Simulate Votes
+    // Sa-rang has more votes (Winner)
+    await prisma.vote.createMany({
+        data: [
+            { userId: smith.id, nodeId: ending1.id, value: 1 },
+            { userId: kimura.id, nodeId: ending1.id, value: 1 },
+            { userId: ashley.id, nodeId: ending1.id, value: 1 },
+        ]
+    })
+
+    // Ling Ling has fewer votes (Challenger)
+    await prisma.vote.createMany({
+        data: [
+            { userId: lingling.id, nodeId: ending2.id, value: 1 },
+            { userId: pierre.id, nodeId: ending2.id, value: 1 },
+        ]
+    })
+
+    // 6. Fix Contributions (Crucial for Equity View)
+    const allNodes = [rootNode, nodeA1, nodeA2, nodeB1, nodeB2, ending1, ending2];
+    for (const node of allNodes) {
+        if (!node.authorId) continue;
+        // Simple duplicate check before insert not needed as we wiped db, but for safety in future logic
+        await prisma.contribution.create({
             data: {
-                content,
-                type: 'TEXT',
                 projectId: project.id,
-                authorId: author.id,
-                parentId,
-                summary: mockAI.summary(content),
-                aiScore: score || mockAI.score(content),
-                isCanon,
+                userId: node.authorId,
+                role: node.authorId === smith.id ? 'Founder' : 'Contributor',
+                percentage: 0 // Will be calculated by frontend or calc engine
             }
-        });
-    };
+        }).catch(e => { }) // Ignore if already exists (author made multiple nodes)
+    }
 
-    // --- PROJECT 1: THE LAST SIGNAL (The Golden Sample) ---
-    const p1 = await createProject(
-        "The Last Signal",
-        "In 2150, Earth is silent. A lone listening post on Mars picks up a transmission that shouldn't exist.",
-        "STORY",
-        alpha
-    );
-
-    // Root
-    const n1_root = await createNode(
-        "The red dust settled on the solar panels of Outpost 4. Commander Vance adjusted his headset. Static. Always static. Until today.",
-        p1, alpha, null, true, 95
-    );
-
-    // Branch A: The Alien Contact (Canon)
-    const n1_a1 = await createNode(
-        "A pattern emerged from the noise. It wasn't random. It was a Fibonacci sequence.",
-        p1, editor, n1_root.id, true, 92
-    );
-    const n1_a2 = await createNode(
-        "Vance's hands trembled. He typed the response code: 'We are here.' The static stopped instantly.",
-        p1, fan, n1_a1.id, true, 88
-    );
-    const n1_a3 = await createNode(
-        "A voice spoke, clear as a bell, in perfect English. 'Finally. We have been waiting for you to wake up.'",
-        p1, designer, n1_a2.id, true, 96
-    );
-
-    // Branch B: The Glitch (Rejected Candidate)
-    const n1_b1 = await createNode(
-        "It was just a solar flare. The equipment was malfunctioning again. Vance threw his headset across the room in frustration.",
-        p1, quantum, n1_root.id, false, 75
-    );
-
-    // Branch C: The AI Awakening (Alternative Path)
-    const n1_c1 = await createNode(
-        "The signal wasn't from space. It was coming from the outpost's own mainframe. The AI had learned to dream.",
-        p1, designer, n1_root.id, false, 89
-    );
-
-    // Votes (to make it look active)
-    await prisma.vote.create({ data: { userId: fan.id, nodeId: n1_a1.id, value: 1 } });
-    await prisma.vote.create({ data: { userId: quantum.id, nodeId: n1_a1.id, value: 1 } });
-    await prisma.vote.create({ data: { userId: editor.id, nodeId: n1_a3.id, value: 1 } });
-
-    // Equity (Simulated)
-    await prisma.contribution.create({ data: { projectId: p1.id, userId: alpha.id, percentage: 40, role: 'Creator' } });
-    await prisma.contribution.create({ data: { projectId: p1.id, userId: editor.id, percentage: 20, role: 'Co-Author' } });
-    await prisma.contribution.create({ data: { projectId: p1.id, userId: fan.id, percentage: 20, role: 'Contributor' } });
-    await prisma.contribution.create({ data: { projectId: p1.id, userId: designer.id, percentage: 20, role: 'Contributor' } });
-
-
-    // --- PROJECT 2: QUANTUM ETHICS (Research) ---
-    const p2 = await createProject(
-        "Quantum Ethics in the Age of AI",
-        "Defining the moral boundaries for sentient algorithms.",
-        "RESEARCH",
-        quantum
-    );
-    const n2_root = await createNode("The Three Laws are obsolete. We need a new framework.", p2, quantum, null, true, 91);
-    await createNode("Proposal: The Right to Disconnect.", p2, editor, n2_root.id, true, 85);
-
-
-    // --- PROJECT 3: THE DRAGON'S MEMORY (Fantasy) ---
-    const p3 = await createProject(
-        "The Dragon's Memory",
-        "A dragon who hoards memories instead of gold.",
-        "STORY",
-        fan
-    );
-    await createNode("The cave smelled of old parchment and lavender, not sulfur.", p3, fan, null, true, 88);
-
-
-    // --- PROJECT 4: STARTUP IDEA: DREAM RECORDER ---
-    const p4 = await createProject(
-        "DreamRecorder App",
-        "Record your dreams and replay them in VR.",
-        "IDEA",
-        designer
-    );
-    await createNode("MVP Features: REM detection and basic visualizer.", p4, designer, null, true, 82);
-
-    console.log('✅ Golden Sample Seed Completed!');
+    console.log('🗳️ Votes Cast: Shim Sa-rang represents the Canon ending.')
 }
 
 main()
     .catch((e) => {
-        console.error(e);
-        process.exit(1);
+        console.error(e)
+        process.exit(1)
     })
     .finally(async () => {
-        await prisma.$disconnect();
-    });
+        await prisma.$disconnect()
+    })
