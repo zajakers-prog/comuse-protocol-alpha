@@ -61,6 +61,13 @@ export async function GET(req: Request) {
                 isCanon: true,
                 aiScore: 92,
                 isPaidBoost: true,
+                aiData: JSON.stringify({
+                    scores: { novelty: 10, osmuPotential: 9, collaborativeMagnetism: 10, marketDemand: 8 },
+                    scoutOpinion: "Visually stunning hook. Perfect for Netflix formatting.",
+                    status: "APPROVED",
+                    marketLogic: "Urban Fantasy + Hidden Object trope shows 88% retention rate in Pilot episodes (Ref: Harry Potter, Matrix).",
+                    similarWorks: ["The Matrix", "Chronicles of Narnia", "Dark City"]
+                })
             },
         });
 
@@ -134,6 +141,13 @@ export async function GET(req: Request) {
                 isCanon: true,
                 aiScore: 95,
                 isPaidBoost: true,
+                aiData: JSON.stringify({
+                    scores: { novelty: 9, osmuPotential: 10, collaborativeMagnetism: 9, marketDemand: 9 },
+                    scoutOpinion: "Perfect Season 1 cliffhanger.",
+                    status: "APPROVED",
+                    marketLogic: "Open endings in mystery thrillers drive 40% higher social engagement for Season 2 renewal.",
+                    similarWorks: ["Signal (TvN)", "The OA (Netflix)", "Inception"]
+                })
             },
         });
 
@@ -149,6 +163,13 @@ export async function GET(req: Request) {
                 isCanon: false,
                 aiScore: 89,
                 isPaidBoost: true,
+                aiData: JSON.stringify({
+                    scores: { novelty: 7, osmuPotential: 8, collaborativeMagnetism: 8, marketDemand: 7 },
+                    scoutOpinion: "Dramatic but closes the IP potential too early.",
+                    status: "REJECTED_BY_AI",
+                    marketLogic: "Protagonist death in Season 1 reduces merchandising potential by 60%.",
+                    similarWorks: ["Game of Thrones (Ned Stark exception)", "Akame ga Kill"]
+                })
             },
         });
 

@@ -78,6 +78,35 @@ export function WeaverReport({ aiDataString, summary }: WeaverReportProps) {
                     </p>
                 </div>
 
+                {/* AI Executive Producer (Big Data Analysis) */}
+                {(analysis.similarWorks || analysis.marketLogic) && (
+                    <div className="bg-purple-50 p-5 rounded-lg border border-purple-100 mt-4">
+                        <div className="flex items-center gap-2 mb-3">
+                            <span className="bg-purple-600 text-white text-xs font-bold px-2 py-0.5 rounded">AI Executive Producer</span>
+                            <h3 className="text-sm font-bold text-purple-900 uppercase tracking-wide">Big Data Market Fit</h3>
+                        </div>
+
+                        {analysis.marketLogic && (
+                            <p className="text-purple-900 text-sm italic mb-3 border-l-2 border-purple-300 pl-3">
+                                "{analysis.marketLogic}"
+                            </p>
+                        )}
+
+                        {analysis.similarWorks && (
+                            <div className="flex items-center gap-2 mt-2">
+                                <span className="text-xs font-semibold text-purple-700 uppercase">Similar Hits:</span>
+                                <div className="flex gap-2 flex-wrap">
+                                    {analysis.similarWorks.map((work: string, i: number) => (
+                                        <span key={i} className="bg-white text-purple-800 border border-purple-200 px-2 py-0.5 rounded text-xs font-medium shadow-sm">
+                                            {work}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* Status Badge */}
                 <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                     <div className="flex items-center gap-2">
